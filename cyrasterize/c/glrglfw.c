@@ -23,16 +23,16 @@ glr_glfw_context glr_build_glfw_context_onscreen(int width, int height){
     return context;
 }
 
-void _glr_glew_init(void) {
+glr_STATUS _glr_glew_init(void) {
 	// Fire up GLEW
     // Flag is required for use with Core Profiles (which we need for OS X)
     // http://www.opengl.org/wiki/OpenGL_Loading_Library#GLEW
     glewExperimental = true;
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
-	   fprintf(stderr, "GLEW Failed to start! Error: %s\n",
+	    fprintf(stderr, "GLEW Failed to start! Error: %s\n",
 			   glewGetErrorString(status));
-	   exit(EXIT_FAILURE);
+	    return GLR_GLEW_FAILED;
 	}
 	fprintf(stdout, "  - Using GLEW %s\n", glewGetString(GLEW_VERSION));
 	if(GLEW_ARB_texture_buffer_object_rgb32)
@@ -47,14 +47,15 @@ void _glr_glew_init(void) {
     GLenum err = glGetError();
     if (err == GL_INVALID_ENUM)
         fprintf(stdout,"swallowing GL_INVALID_ENUM error\n");
+    return GLR_SUCCESS;
 }
 
-void glr_glfw_init(glr_glfw_context* context)
+glr_STATUS glr_glfw_init(glr_glfw_context* context)
 {
 	printf("glr_glfw_init(...)\n");
 	// Fire up glfw
     if (!glfwInit())
-        exit(EXIT_FAILURE);
+        return GLR_GLFW_INIT_FAILED;
     glfwWindowHint(GLFW_VISIBLE, !context->offscreen);
     // ask for at least OpenGL 3.3 (might be able to
     // relax this in future to 3.2/3.1)
@@ -71,16 +72,20 @@ void glr_glfw_init(glr_glfw_context* context)
     if (!context->window)
     {
         glfwTerminate();
-        exit(EXIT_FAILURE);
+        return GLR_GLFW_WINDOW_FAILED;
     }
     glfwMakeContextCurrent(context->window);
     printf("Have context.\n");
-    _glr_glew_init();
+    glr_STATUS status = _glr_glew_init();
+    if (status != GLR_SUCCESS) {
+        return status;
+    }
     // trigger a viewport resize (seems to be required in 10.9)
 	glViewport(0, 0, (GLsizei) context->window_width, 
                      (GLsizei) context->window_height);
     // set the global state to the sensible defaults
     glr_set_global_settings();
+    return GLR_SUCCESS;
 }
 
 

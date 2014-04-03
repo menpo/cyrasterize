@@ -13,9 +13,15 @@ cdef extern from "./c/glrglfw.h":
         bool offscreen
         void* window
 
+    ctypedef enum glr_STATUS:
+        GLR_SUCCESS
+        GLR_GLFW_INIT_FAILED
+        GLR_GLFW_WINDOW_FAILED
+        GLR_GLEW_FAILED
+
     cdef glr_glfw_context glr_build_glfw_context_offscreen(int width,
                                                            int height)
-    cdef void glr_glfw_init(glr_glfw_context* context)
+    cdef glr_STATUS glr_glfw_init(glr_glfw_context* context)
     cdef void glr_glfw_terminate(glr_glfw_context* context)
 
 
@@ -118,7 +124,12 @@ cdef class GLRasterizer:
         self.scene = glr_build_scene()
         self.context = glr_build_glfw_context_offscreen(width, height)
         # init our context
-        glr_glfw_init(&self.context)
+        cdef glr_STATUS status
+        status = glr_glfw_init(&self.context)
+        if status != GLR_SUCCESS:
+            print 'oh no something went wrong!'
+        else:
+            print 'successfully initialized'
         self.scene.context = &self.context
         # build the program and set it
         init_program_to_texture_shader(&self.scene)
