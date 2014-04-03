@@ -151,6 +151,9 @@ cdef class GLRasterizer:
             &self.f3v_pixels[0, 0, 0], self.width, self.height)
         init_frame_buffer(&self.scene)
 
+    def successfully_initialized(self):
+        return self.success
+
     def render_offscreen_rgb(self,
             np.ndarray[float, ndim=2, mode="c"] points not None,
             np.ndarray[float, ndim=2, mode="c"] f3v_data not None,
