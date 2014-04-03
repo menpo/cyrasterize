@@ -13,9 +13,15 @@ cdef extern from "./c/glrglfw.h":
         bool offscreen
         void* window
 
+    ctypedef enum glr_STATUS:
+        GLR_SUCCESS
+        GLR_GLFW_INIT_FAILED
+        GLR_GLFW_WINDOW_FAILED
+        GLR_GLEW_FAILED
+
     cdef glr_glfw_context glr_build_glfw_context_offscreen(int width,
                                                            int height)
-    cdef void glr_glfw_init(glr_glfw_context* context)
+    cdef glr_STATUS glr_glfw_init(glr_glfw_context* context)
     cdef void glr_glfw_terminate(glr_glfw_context* context)
 
 
@@ -114,11 +120,19 @@ cdef class GLRasterizer:
     cdef float[:, :, ::1] rgb_pixels
     cdef float[:, :, ::1] f3v_pixels
 
+    cdef bool success
+
     def __cinit__(self, int width, int height):
         self.scene = glr_build_scene()
         self.context = glr_build_glfw_context_offscreen(width, height)
         # init our context
-        glr_glfw_init(&self.context)
+        cdef glr_STATUS status
+        status = glr_glfw_init(&self.context)
+        if status != GLR_SUCCESS:
+            self.success = False
+            return
+        else:
+            self.success = True
         self.scene.context = &self.context
         # build the program and set it
         init_program_to_texture_shader(&self.scene)
@@ -134,6 +148,9 @@ cdef class GLRasterizer:
         self.scene.fb_f3v_target = glr_build_float_rgb_texture(
             &self.f3v_pixels[0, 0, 0], self.width, self.height)
         init_frame_buffer(&self.scene)
+
+    def successfully_initialized(self):
+        return self.success
 
     def render_offscreen_rgb(self,
             np.ndarray[float, ndim=2, mode="c"] points not None,
