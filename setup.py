@@ -96,7 +96,7 @@ cmdclass['build_ext'] = build_ext
 
 
 setup(name='cyrasterize',
-      version='0.1.1',
+      version='0.1.2',
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
@@ -113,7 +113,8 @@ setup(name='cyrasterize',
       ],
       ext_modules=extensions,
       packages=find_packages(),
-      package_data={'cyrasterize': ['*.pyx', 'c/*.h']},
+      package_data={'cyrasterize': ['*.pyx', 'c/*.h', 'shaders/*.vert',
+                                    'shaders/*.frag']},
       cmdclass=cmdclass,
       setup_requires=['numpy>=1.8.0'],
       install_requires=['numpy>=1.8.0']

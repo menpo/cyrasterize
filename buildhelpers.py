@@ -22,10 +22,12 @@ cyrasterize/c/shaders.h
 
 
 header_file = 'shaders.h'
-cyrasterize_dir = os.path.join('.', 'cyrasterize')
+cyrasterize_dir = os.path.join(os.path.split(__file__)[0], 'cyrasterize')
+print cyrasterize_dir
 shaders_folder = os.path.join(cyrasterize_dir, 'shaders')
 header_filepath = os.path.join(cyrasterize_dir, 'c', header_file)
 
+print shaders_folder
 
 class Shader:
     def __init__(self, path):
