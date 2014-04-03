@@ -1,1 +1,2 @@
-from cyrasterize.glrasterizer import *
+from cyrasterize.base import CyRasterizer
+
