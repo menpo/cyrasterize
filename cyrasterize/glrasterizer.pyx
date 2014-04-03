@@ -129,11 +129,9 @@ cdef class GLRasterizer:
         cdef glr_STATUS status
         status = glr_glfw_init(&self.context)
         if status != GLR_SUCCESS:
-            print 'oh no something went wrong!'
             self.success = False
             return
         else:
-            print 'successfully initialized'
             self.success = True
         self.scene.context = &self.context
         # build the program and set it
