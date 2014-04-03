@@ -96,7 +96,7 @@ cmdclass['build_ext'] = build_ext
 
 
 setup(name='cyrasterize',
-      version='0.1',
+      version='0.1.1',
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',

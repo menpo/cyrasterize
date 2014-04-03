@@ -1,0 +1,3 @@
+include LICENSE.txt
+include AUTHORS.txt
+include buildhelpers.py
