@@ -57,6 +57,8 @@ class CyRasterizer(object):
 
         """
         self._opengl = GLRasterizer(width, height)
+        if not self._opengl.success:
+            raise RuntimeError("Failed to initialize CyRasterizer")
         if model_matrix is not None:
             self.set_model_matrix(model_matrix)
         if view_matrix is not None:

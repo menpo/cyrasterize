@@ -120,6 +120,8 @@ cdef class GLRasterizer:
     cdef float[:, :, ::1] rgb_pixels
     cdef float[:, :, ::1] f3v_pixels
 
+    cdef bool success
+
     def __cinit__(self, int width, int height):
         self.scene = glr_build_scene()
         self.context = glr_build_glfw_context_offscreen(width, height)
@@ -128,8 +130,11 @@ cdef class GLRasterizer:
         status = glr_glfw_init(&self.context)
         if status != GLR_SUCCESS:
             print 'oh no something went wrong!'
+            self.success = False
+            return
         else:
             print 'successfully initialized'
+            self.success = True
         self.scene.context = &self.context
         # build the program and set it
         init_program_to_texture_shader(&self.scene)
