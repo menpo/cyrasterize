@@ -100,6 +100,7 @@ setup(name='cyrasterize',
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
+      url='https://github.com/menpo/cyrasterize/',
       classifiers=[
           'Development Status :: 3 - Alpha',
           'Intended Audience :: Developers',
