@@ -11,25 +11,24 @@ from buildhelpers import rebuild_c_shaders
 rebuild_c_shaders()
 
 pyx_sources = [path.join(".", "cyrasterize", "glrasterizer.pyx")]
-cythonized_sources = [path.join(".", "cyrasterize", "glrasterizer.c")]
+cythonized_sources = [path.join(".", "cyrasterize", "glrasterizer.cpp")]
 
 # files to compile from glrasterizer
-glrasterizer_sources = ["glrasterizer.c", "glr.c", "glrglfw.c"]
-external_sources = [path.join(".", "cyrasterize", "c", s) for s in
+glrasterizer_sources = ["glrasterizer.cpp", "glr.cpp", "glrglfw.cpp"]
+external_sources = [path.join(".", "cyrasterize", "cpp", s) for s in
                     glrasterizer_sources]
+
 
 # kwargs to be provided to distutils
 ext_kwargs = {
-    'libraries': ['m', 'GLEW'],
-    'language': 'c',
-    'extra_compile_args': ['-std=c99']
+    'language': 'c++'
 }
 
 # unfortunately, linking requirements differ on OS X vs Linux
 if sys.platform.startswith('linux'):
-    ext_kwargs['libraries'] += ['GL', 'GLU', 'glfw']
+    ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
 elif sys.platform == 'darwin':
-    ext_kwargs['libraries'] += ['glfw3']
+    ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
     # TODO why does it compile without these on OS X?!
     #c_ext.extra_compile_args += ['-framework OpenGL',
     #                             '-framework Cocoa', '-framework IOKit',
@@ -114,7 +113,7 @@ setup(name='cyrasterize',
       ],
       ext_modules=extensions,
       packages=find_packages(),
-      package_data={'cyrasterize': ['*.pyx', 'c/*.h', 'shaders/*.vert',
+      package_data={'cyrasterize': ['*.pyx', 'cpp/*.h', 'shaders/*.vert',
                                     'shaders/*.frag']},
       cmdclass=cmdclass,
       setup_requires=['numpy>=1.8.0'],

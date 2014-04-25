@@ -1,6 +1,6 @@
 #pragma once
 #include "glrglfw.h"
-
+#include "stdint.h"
 
 typedef struct {
 	GLint internal_format;

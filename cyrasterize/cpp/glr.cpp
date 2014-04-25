@@ -26,7 +26,7 @@ GLuint glr_create_shader_from_string(GLenum shader_type,
 	if (status == GL_FALSE) {
 		GLint info_log_length;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
-		GLchar str_info_log [info_log_length + 1];
+		GLchar* str_info_log = new GLchar[info_log_length + 1];
 		glGetShaderInfoLog(shader, info_log_length, NULL, str_info_log);
 		const char *strShaderType = NULL;
 		switch (shader_type) {
@@ -36,6 +36,7 @@ GLuint glr_create_shader_from_string(GLenum shader_type,
 		}
 		fprintf(stderr, "Compile failure in %s shader: \n%s\n",
 				strShaderType, str_info_log);
+		delete[] str_info_log;
 		exit(EXIT_FAILURE);
 	}
 	return shader;
@@ -51,9 +52,10 @@ GLuint glr_create_program(GLuint *shaders, size_t n_shaders) {
 	if (status == GL_FALSE) {
 		GLint info_log_length;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
-		GLchar str_info_log [info_log_length + 1];
+		GLchar* str_info_log = new GLchar[info_log_length + 1];
 		glGetProgramInfoLog(program, info_log_length, NULL, str_info_log);
 		fprintf(stderr, "Linker failure: %s\n", str_info_log);
+		delete[] str_info_log;
 	}
 	for(size_t i = 0; i < n_shaders; i++)
 		glDetachShader(program, shaders[i]);
