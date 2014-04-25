@@ -10,3 +10,5 @@ Imperial College London
 
 Individuals
 -----------
+
+Patrick Snape <patricksnape@gmail.com> <patrick.snape08@imperial.ac.uk>
