@@ -5,7 +5,7 @@ import numpy as np
 
 
 # we need to be able to hold onto a context reference
-cdef extern from "./c/glrglfw.h":
+cdef extern from "./cpp/glrglfw.h":
     ctypedef struct glr_glfw_context:
         int window_width
         int window_height
@@ -26,7 +26,7 @@ cdef extern from "./c/glrglfw.h":
 
 
 # we need to be able to hold onto a scene reference
-cdef extern from "./c/glr.h":
+cdef extern from "./cpp/glr.h":
 
     ctypedef struct glr_texture:
         int internal_format
@@ -101,7 +101,7 @@ cdef extern from "./c/glr.h":
     void glr_check_error()
 
 
-cdef extern from "./c/glrasterizer.h":
+cdef extern from "./cpp/glrasterizer.h":
     void render_texture_shader_to_fb(glr_scene* scene)
     void init_program_to_texture_shader(glr_scene* scene)
     void init_frame_buffer(glr_scene* scene)

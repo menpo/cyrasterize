@@ -1,5 +1,5 @@
-# Don't check in Cython generated C
-cyrasterize/glrasterizer.c
+# Don't check in Cython generated CPP
+cyrasterize/glrasterizer.cpp
 *.swp
 *.pyc
 *.so
@@ -8,6 +8,7 @@ cyrasterize/glrasterizer.c
 build
 *.egg-info
 *.egg
+*~
 .idea
 # Ignore IPython notebook autosave files
 .ipynb_checkpoints
