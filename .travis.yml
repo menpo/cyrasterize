@@ -12,6 +12,12 @@ env:
   - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda3-3.6.0-Linux-x86_64.sh
 
 install:
+- touch ~/.pypi
+- echo '[distutils]' >> ~/.pypi
+- echo 'index-servers = pypi\n' >> ~/.pypi
+- echo '[pypi]' >> ~/.pypi
+- echo 'username: $PYPI_USERNAME' >> ~/.pypi
+- echo 'password: $PYPI_PASSWORD' >> ~/.pypi
 - chmod +x setup_conda.py
 - ./setup_conda.py setup ./conda --url $MINICONDA_URL --channel menpo
 - sudo rm -rf /dev/shm
