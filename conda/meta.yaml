@@ -18,10 +18,6 @@ requirements:
     - glew [unix]
     - glfw3 [unix]
     
-test:
-  imports:
-    - cyrasterize
-
 about:
   home: https://github.com/menpo/cyrasterize/
   license: BSD
