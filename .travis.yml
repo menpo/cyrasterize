@@ -4,9 +4,9 @@ os:
 
 env:
   global:
-  - secure: JlfgCiccebdQTDV2bBw5UMK+cO+ETEDBttfcfzlq0DRKIh+ykPJWHh8vBfR+OeZveLIJAaS+9rRb62p3ndkltVmmtCL3VrZKL+W5ozQTw/bDu9/1lVu9u1Gh6beVYUT5ngPkXFNufcAb+d0uMpuxLlxGiQuaQODgX9Lel68pUqo=
   - secure: eSVtog6u+npiiV13Uqs5w25lS5PK3KPcqNbvx186z3IzzXNCOECG1Dw12FWZjVyhLLfousI/4IdpB0RYtZSq97e2hKnSGpMRCCZ5PmPQAB3goShiyMZj/jnlM4ub0YAHRmP2Pg8JruZNMY/D4BIcaY7Nr8u6qdfYLDhlP2aBfgg=
   - secure: h2la2kBdhkS/FO3qpeo/MwNoRK9NKApu+RX0nEmH/z7R1unqd3uZRgxH02aUWkszCzABD5abS8VTFwrlXSl0gMOPHwxucYIusG5CJQmbypKPqaAzhjaObwsnnB3E4ucCsDlRQs4ez+yUKFJ4k5a8EjL/B/m6C6XWimDiKcyi46s=
+  - secure: NrXFlg3aXuKpJSQASRS9+Mlz/7dwZC7PWGA5LDZvkECrbCizdahUUHyWR3jkJjErrpLGGOv9ESXuecVjbHr3/lGApdHDgaFE1qbRKSlVWs6C4s4PM7+w+34LOGdQRa2GpmITA1/yoL0VgmwD3KAsRVWy9n5P0bda/LI6a1SF90I=
   matrix:
   - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda-3.6.0-Linux-x86_64.sh
   - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda3-3.6.0-Linux-x86_64.sh
@@ -16,15 +16,7 @@ install:
 - chmod +x traviconda.py
 - ./traviconda.py setup ./conda --url $MINICONDA_URL --channel menpo
 - export PATH=/home/travis/miniconda/bin:$PATH
-# so conda tests don't run
 - export IN_VM=1
-# PYPI setup?
-#- touch ~/.pypi
-#- echo "[distutils]" >> ~/.pypi
-#- echo "index-servers = pypi\n" >> ~/.pypi
-#- echo "[pypi]" >> ~/.pypi
-#- echo "username\: $PYPI_USERNAME" >> ~/.pypi
-#- echo "password\: $PYPI_PASSWORD" >> ~/.pypi
 
 script:
 - ./traviconda.py build ./conda --user menpo --key $BINSTAR_KEY
