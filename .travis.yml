@@ -1,24 +1,22 @@
 os:
 - linux
 - osx
-
 env:
   global:
   - secure: JlfgCiccebdQTDV2bBw5UMK+cO+ETEDBttfcfzlq0DRKIh+ykPJWHh8vBfR+OeZveLIJAaS+9rRb62p3ndkltVmmtCL3VrZKL+W5ozQTw/bDu9/1lVu9u1Gh6beVYUT5ngPkXFNufcAb+d0uMpuxLlxGiQuaQODgX9Lel68pUqo=
+  - secure: eSVtog6u+npiiV13Uqs5w25lS5PK3KPcqNbvx186z3IzzXNCOECG1Dw12FWZjVyhLLfousI/4IdpB0RYtZSq97e2hKnSGpMRCCZ5PmPQAB3goShiyMZj/jnlM4ub0YAHRmP2Pg8JruZNMY/D4BIcaY7Nr8u6qdfYLDhlP2aBfgg=
+  - secure: h2la2kBdhkS/FO3qpeo/MwNoRK9NKApu+RX0nEmH/z7R1unqd3uZRgxH02aUWkszCzABD5abS8VTFwrlXSl0gMOPHwxucYIusG5CJQmbypKPqaAzhjaObwsnnB3E4ucCsDlRQs4ez+yUKFJ4k5a8EjL/B/m6C6XWimDiKcyi46s=
   matrix:
   - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda-3.6.0-Linux-x86_64.sh
   - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda3-3.6.0-Linux-x86_64.sh
-
 install:
 - chmod +x setup_conda.py
 - ./setup_conda.py setup ./conda --url $MINICONDA_URL --channel menpo
 - sudo rm -rf /dev/shm
 - sudo ln -s /run/shm /dev/shm
 - export PATH=/home/travis/miniconda/bin:$PATH
-
 script:
 - ./setup_conda.py build ./conda --user menpo --key $BINSTAR_KEY
-
 notifications:
   email: false
   webhooks:
