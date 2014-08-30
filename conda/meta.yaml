@@ -2,9 +2,6 @@ package:
   name: cyrasterize
   version: VERSION_NUMBER
 
-  patches:
-    - windows_setup.patch [win]
-
 requirements:
   build:
     - python
