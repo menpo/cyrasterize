@@ -17,7 +17,7 @@ requirements:
     - numpy
     - glew [unix]
     - glfw3 [unix]
-    
+
 about:
   home: https://github.com/menpo/cyrasterize/
   license: BSD

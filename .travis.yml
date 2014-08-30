@@ -18,6 +18,7 @@ install:
 #- echo "[pypi]" >> ~/.pypi
 #- echo "username\: $PYPI_USERNAME" >> ~/.pypi
 #- echo "password\: $PYPI_PASSWORD" >> ~/.pypi
+- export IN_VM=1
 - chmod +x setup_conda.py
 - ./setup_conda.py setup ./conda --url $MINICONDA_URL --channel menpo
 - sudo rm -rf /dev/shm
