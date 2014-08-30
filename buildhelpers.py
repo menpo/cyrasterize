@@ -1,5 +1,6 @@
 import os
 import glob
+from functools import reduce
 
 """
 This short script finds all GLSL shader files in the
