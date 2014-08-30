@@ -62,9 +62,10 @@ glr_STATUS glr_glfw_init(glr_glfw_context* context)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     // OS X will only give us such a profile if we ask for a forward
-    // compatable core proflile. Not that the forward copatibility is
+    // compatable core profile. Not that the forward copatibility is
     // a noop as we ask for 3.3, but unfortunately OS X needs it.
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_DEPTH_BITS, 16);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     context->window = glfwCreateWindow(
             context->window_width, context->window_height,
