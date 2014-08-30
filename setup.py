@@ -1,11 +1,20 @@
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
-from setuptools.command.sdist import sdist as _sdist
 
 import sys
 from os import path
 
 from buildhelpers import rebuild_c_shaders
+
+import versioneer
+
+# Versioneer allows us to automatically generate versioning from
+# our git tagging system which makes releases simpler.
+versioneer.VCS = 'git'
+versioneer.versionfile_source = 'cyrasterize/_version.py'
+versioneer.versionfile_build = 'cyrasterize/_version.py'
+versioneer.tag_prefix = 'v'  # tags are like v1.2.0
+versioneer.parentdir_prefix = 'cyrasterize-'  # dirname like 'cyrasterize-v1.2.0'
 
 # always recreate the compiled in C shader files immediately
 rebuild_c_shaders()
@@ -65,15 +74,22 @@ except ImportError:
 
 # either way, by now, extensions is correctly set.
 
-# Subclass sdist to ensure Cython is run when a new distribution is built
+# get the versioneer cmdclass
+cmdclass = versioneer.get_cmdclass()
+_sdist = cmdclass['sdist']
+
+# Subclass versioneer sdist to ensure Cython is run when a new distribution is
+# built.
 class sdist(_sdist):
 
     def run(self):
-        # Make sure the compiled Cython files in the distribution are up-to-date
+        # Make sure the compiled Cython files in the distribution are
+        # up-to-date
         ext_from_source()
         _sdist.run(self)
 
-cmdclass = {'sdist': sdist}
+# set the sdist back (cython -> versioneer -> setuptools)
+cmdclass['sdist'] = sdist
 
 
 # http://stackoverflow.com/a/21621689/2691632
@@ -95,7 +111,8 @@ cmdclass['build_ext'] = build_ext
 
 
 setup(name='cyrasterize',
-      version='0.1.5',
+      version=versioneer.get_version(),
+      cmdclass=cmdclass,
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
@@ -115,7 +132,6 @@ setup(name='cyrasterize',
       packages=find_packages(),
       package_data={'cyrasterize': ['*.pyx', 'cpp/*.h', 'shaders/*.vert',
                                     'shaders/*.frag']},
-      cmdclass=cmdclass,
       setup_requires=['numpy>=1.8.0'],
       install_requires=['numpy>=1.8.0']
       )
