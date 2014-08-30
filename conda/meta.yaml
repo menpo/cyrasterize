@@ -1,0 +1,30 @@
+package:
+  name: cyrasterize
+  version: VERSION_NUMBER
+
+  patches:
+    - windows_setup.patch [win]
+
+requirements:
+  build:
+    - python
+    - distribute
+    - numpy
+    - cython
+    - glew
+    - glfw3
+    - msinttypes [win]
+
+  run:
+    - python
+    - numpy
+    - glew [unix]
+    - glfw3 [unix]
+    
+test:
+  imports:
+    - cyrasterize
+
+about:
+  home: https://github.com/menpo/cyrasterize/
+  license: BSD
