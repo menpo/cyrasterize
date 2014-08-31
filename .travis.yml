@@ -8,18 +8,18 @@ env:
   - secure: h2la2kBdhkS/FO3qpeo/MwNoRK9NKApu+RX0nEmH/z7R1unqd3uZRgxH02aUWkszCzABD5abS8VTFwrlXSl0gMOPHwxucYIusG5CJQmbypKPqaAzhjaObwsnnB3E4ucCsDlRQs4ez+yUKFJ4k5a8EjL/B/m6C6XWimDiKcyi46s=
   - secure: NrXFlg3aXuKpJSQASRS9+Mlz/7dwZC7PWGA5LDZvkECrbCizdahUUHyWR3jkJjErrpLGGOv9ESXuecVjbHr3/lGApdHDgaFE1qbRKSlVWs6C4s4PM7+w+34LOGdQRa2GpmITA1/yoL0VgmwD3KAsRVWy9n5P0bda/LI6a1SF90I=
   matrix:
-  - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda-3.6.0-Linux-x86_64.sh
-  - MINICONDA_URL=http://repo.continuum.io/miniconda/Miniconda3-3.6.0-Linux-x86_64.sh
+  - PYTHON_VERSION=2
+  - PYTHON_VERSION=3
 
 install:
 - wget https://raw.githubusercontent.com/jabooth/traviconda/master/traviconda.py -O traviconda.py
-- chmod +x traviconda.py
-- ./traviconda.py setup ./conda --url $MINICONDA_URL --channel menpo
+- python traviconda.py setup --python $PYTHON_VERSION --channel menpo
+- export CYRASTERIZE_VERSION=$(python traviconda.py version)
 - export PATH=/home/travis/miniconda/bin:$PATH
 - export IN_VM=1
 
 script:
-- ./traviconda.py build ./conda --user menpo --key $BINSTAR_KEY
+- python traviconda.py build --path ./conda --user menpo --key $BINSTAR_KEY
 
 notifications:
   email: false
