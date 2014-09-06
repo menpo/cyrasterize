@@ -12,16 +12,14 @@ env:
   - PYTHON_VERSION=3
 
 install:
-- wget https://raw.githubusercontent.com/jabooth/traviconda/tidyup/traviconda.py
--O traviconda.py
+- wget https://raw.githubusercontent.com/jabooth/traviconda/tidyup/traviconda.py -O traviconda.py
 - python traviconda.py setup $PYTHON_VERSION --channel menpo
 - export CYRASTERIZE_VERSION=$(python traviconda.py version)
 - export PATH=/home/travis/miniconda/bin:$PATH
 - export IN_VM=1
 
 script:
-- python traviconda.py auto ./conda --binstaruser menpo --binstarkey
-$BINSTAR_KEY --pypiuser $PYPI_USERNAME  --pypipassword $PYPI_PASSWORD
+- python traviconda.py auto ./conda --binstaruser menpo --binstarkey $BINSTAR_KEY --pypiuser $PYPI_USERNAME  --pypipassword $PYPI_PASSWORD
 
 notifications:
   email: false
