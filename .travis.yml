@@ -12,7 +12,7 @@ env:
   - PYTHON_VERSION=3
 
 install:
-- wget https://raw.githubusercontent.com/jabooth/traviconda/tidyup/traviconda.py -O traviconda.py
+- wget https://raw.githubusercontent.com/jabooth/traviconda/master/traviconda.py -O traviconda.py
 - python traviconda.py setup $PYTHON_VERSION --channel menpo
 - export CYRASTERIZE_VERSION=$(python traviconda.py version)
 - export PATH=/home/travis/miniconda/bin:$PATH
