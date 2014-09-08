@@ -76,6 +76,7 @@ void render_texture_shader_to_fb(glr_scene* scene)
 
     // clear up our OpenGL state
 	glr_destroy_vbos_on_trianglar_mesh(&(scene->mesh));
+	glr_destroy_texture(&scene->mesh.texture);
 }
 
 

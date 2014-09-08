@@ -1,6 +1,7 @@
 #pragma once
 #include "glrglfw.h"
 #include "stdint.h"
+#include <iostream>
 
 typedef struct {
 	GLint internal_format;
@@ -192,6 +193,9 @@ void glr_get_framebuffer(glr_texture* texture);
 
 
 void glr_destroy_vbos_on_trianglar_mesh(glr_textured_mesh* mesh);
+
+
+void glr_destroy_texture(glr_texture* texture);
 
 /*
  * set the float matrix to

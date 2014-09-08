@@ -1,5 +1,5 @@
-FILES = driver.c glrasterizer.c glr.c glrglfw.c
-CFLAGS = -g -Wall -std=c99
+FILES = driver.cpp glrasterizer.cpp glr.cpp glrglfw.cpp
+CFLAGS = -g -Wall
 
 # Linux defaults
 LDFLAGS = -lGLEW -lm
@@ -17,9 +17,9 @@ ifeq ($(UNAME),Darwin)
 endif
 
 driver:
-	python shaders.py
-	cc $(CFLAGS) $(FILES) $(GLFWFLAGS) $(LDFLAGS) -o driver.exe
-	#gcc $(CFLAGS) $(FILES) $(OPENGLFLAGS) $(GLFWFLAGS) $(LDFLAGS) -o driver.exe
+	#python shaders.py
+	#g++ $(CFLAGS) $(FILES) $(GLFWFLAGS) $(LDFLAGS) -o driver.exe
+	g++ $(CFLAGS) $(FILES) $(OPENGLFLAGS) $(GLFWFLAGS) $(LDFLAGS) -o driver.exe
 
 clean:
 	rm -f *.exe
