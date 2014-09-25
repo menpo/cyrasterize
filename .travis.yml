@@ -1,28 +1,21 @@
-os:
-- linux
-- osx
-
 env:
   global:
-  - secure: eSVtog6u+npiiV13Uqs5w25lS5PK3KPcqNbvx186z3IzzXNCOECG1Dw12FWZjVyhLLfousI/4IdpB0RYtZSq97e2hKnSGpMRCCZ5PmPQAB3goShiyMZj/jnlM4ub0YAHRmP2Pg8JruZNMY/D4BIcaY7Nr8u6qdfYLDhlP2aBfgg=
-  - secure: h2la2kBdhkS/FO3qpeo/MwNoRK9NKApu+RX0nEmH/z7R1unqd3uZRgxH02aUWkszCzABD5abS8VTFwrlXSl0gMOPHwxucYIusG5CJQmbypKPqaAzhjaObwsnnB3E4ucCsDlRQs4ez+yUKFJ4k5a8EjL/B/m6C6XWimDiKcyi46s=
-  - secure: NrXFlg3aXuKpJSQASRS9+Mlz/7dwZC7PWGA5LDZvkECrbCizdahUUHyWR3jkJjErrpLGGOv9ESXuecVjbHr3/lGApdHDgaFE1qbRKSlVWs6C4s4PM7+w+34LOGdQRa2GpmITA1/yoL0VgmwD3KAsRVWy9n5P0bda/LI6a1SF90I=
+  - BINSTAR_USER: menpo
   matrix:
   - PYTHON_VERSION=2
   - PYTHON_VERSION=3
 
 install:
-- wget https://raw.githubusercontent.com/jabooth/traviconda/master/traviconda.py -O traviconda.py
-- python traviconda.py setup $PYTHON_VERSION --channel menpo
-- export CYRASTERIZE_VERSION=$(python traviconda.py version)
-- export PATH=/home/travis/miniconda/bin:$PATH
-- export IN_VM=1
+- wget https://raw.githubusercontent.com/jabooth/condaci/master/condaci.py -O condaci.py
+- python condaci.py setup $PYTHON_VERSION --channel $BINSTAR_USER
+- export PATH=$HOME/miniconda/bin:$PATH
 
 script:
-- python traviconda.py auto ./conda --binstaruser menpo --binstarkey $BINSTAR_KEY --pypiuser $PYPI_USERNAME  --pypipassword $PYPI_PASSWORD
+- python condaci.py auto ./conda --binstaruser $BINSTAR_USER --binstarkey $BINSTAR_KEY --pypiuser $PYPI_USERNAME  --pypipassword $PYPI_PASSWORD
 
 notifications:
   email: false
+  flowdock: 769202b66114a5ce0e61df484dfeb177
   webhooks:
     urls:
     - https://webhooks.gitter.im/e/7599ff4870c99ba51310

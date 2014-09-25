@@ -1,6 +1,6 @@
 package:
   name: cyrasterize
-  version: {{ environ['CYRASTERIZE_VERSION'] }}
+  version: {{ environ['TC_PACKAGE_VERSION'] }}
 
 requirements:
   build:
