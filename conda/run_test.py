@@ -15,7 +15,7 @@ def test_basic_random():
     
     assert_allclose(rgb_image, colours)
 
-
-if __name__ == "__main__":
-    if os.environ.get('IN_VM') is None:
-        test_basic_random()
+# as builds are assumed to be on CI, this will unfortunately never work.
+# if __name__ == "__main__":
+#     if os.environ.get('IN_VM') is None:
+#         test_basic_random()
