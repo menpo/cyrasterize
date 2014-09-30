@@ -1,11 +1,12 @@
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
-
-import sys
 from os import path
-
+import sys
+import os
+import shutil
+from glob import glob
+from functools import reduce
 from buildhelpers import rebuild_c_shaders
-
 import versioneer
 
 # Versioneer allows us to automatically generate versioning from
@@ -33,8 +34,34 @@ ext_kwargs = {
     'language': 'c++'
 }
 
-# unfortunately, linking requirements differ on OS X vs Linux
-if sys.platform.startswith('linux'):
+package_data_globs = ['*.pyx', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
+
+# unfortunately, linking requirements differ on OS X vs Linux vs Windows
+# On Windows we essentially just copy the DLLs into the path so that
+# compiling/run time linking works.
+
+
+def localpath(*args):
+    return os.path.abspath(reduce(os.path.join, (os.path.dirname(__file__),) + args))
+
+
+if sys.platform.startswith('win'):
+    CONDA_GLEW_DIR = os.environ['CONDA_GLEW_DIR']
+    CONDA_GLFW_DIR = os.environ['CONDA_GLFW_DIR']
+    if CONDA_GLEW_DIR is not None:
+        ext_kwargs['include_dirs'] = [os.path.join(CONDA_GLEW_DIR, 'include'),
+                                      os.path.join(CONDA_GLFW_DIR, 'include')]
+        ext_kwargs['library_dirs'] = [os.path.join(CONDA_GLEW_DIR, 'lib'),
+                                      os.path.join(CONDA_GLFW_DIR, 'lib')]
+        ext_kwargs['libraries'] = ['glew32', 'glfw3dll', 'OpenGL32', 'glu32']
+        dlls = glob(os.path.join(CONDA_GLEW_DIR, 'lib', 'glew*.dll'))
+        dlls += glob(os.path.join(CONDA_GLFW_DIR, 'lib', 'glfw3*.dll'))
+        for d in dlls:
+            basename = os.path.basename(d)
+            shutil.copy(d, localpath('cyrasterize', basename))
+    # look for .dlls on the package_data
+    package_data_globs.append('*.dll')
+elif sys.platform.startswith('linux'):
     ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
 elif sys.platform == 'darwin':
     ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
@@ -130,8 +157,7 @@ setup(name='cyrasterize',
       ],
       ext_modules=extensions,
       packages=find_packages(),
-      package_data={'cyrasterize': ['*.pyx', 'cpp/*.h', 'shaders/*.vert',
-                                    'shaders/*.frag']},
+      package_data={'cyrasterize': package_data_globs},
       setup_requires=['numpy>=1.8.0'],
       install_requires=['numpy>=1.8.0']
       )
