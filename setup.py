@@ -153,11 +153,13 @@ setup(name='cyrasterize',
           'Programming Language :: C',
           'Programming Language :: Cython',
           'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3.4',
       ],
       ext_modules=extensions,
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
-      setup_requires=['numpy>=1.8.0'],
-      install_requires=['numpy>=1.8.0']
+      setup_requires=['numpy==1.9.0'],
+      install_requires=['numpy==1.9.0']
       )
