@@ -2,11 +2,14 @@
 
 cp -r $RECIPE_DIR/../ .
 
-MAKE_ARCH="-m"$ARCH
+case "$OSTYPE" in
+  darwin*)  export CXX=clang++;; 
+  linux*)   export CFLAGS="$CFLAGS -m${ARCH}";export LDLAGS="$LDLAGS -m${ARCH}";;
+  *)        echo "WARNING: Unknown OS - ${OSTYPE}";;
+esac
 
-if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-  export CFLAGS="$CFLAGS $MAKE_ARCH"
-  export LDLAGS="$LDLAGS $MAKE_ARCH"
-fi
+export CFLAGS="-I$PREFIX/include $CFLAGS"
+export LDFLAGS="-L$PREFIX/lib $LDFLAGS"
 
-CFLAGS="-I$PREFIX/include $CFLAGS" LDFLAGS="-L$PREFIX/lib $LDFLAGS" "$PYTHON" setup.py install
+"$PYTHON" setup.py install --single-version-externally-managed --record=/tmp/record.txt
+

@@ -1,3 +1,5 @@
+# distutils: language = c++
+
 from libc.stdint cimport uint8_t
 from libcpp cimport bool
 cimport numpy as np
