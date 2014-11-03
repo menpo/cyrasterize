@@ -8,14 +8,14 @@ requirements:
     - setuptools
     - numpy 1.9.0
     - cython 0.21
-    - glew 1.10.0
+    - glew 1.11.0
     - glfw3 3.0.4
     - msinttypes r26 [win]
 
   run:
     - python
     - numpy 1.9.0
-    - glew 1.10.0 [unix]
+    - glew 1.11.0 [unix]
     - glfw3 3.0.4 [unix]
 
 about:

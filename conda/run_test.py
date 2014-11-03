@@ -1,7 +1,7 @@
 import numpy as np
 from cyrasterize import CyRasterizer
 from numpy.testing import assert_allclose
-
+import os
 
 def test_basic_random():
     c = CyRasterizer(width=100, height=100)
@@ -15,8 +15,10 @@ def test_basic_random():
     
     assert_allclose(rgb_image, colours)
 
-# as builds are assumed to be on CI, this will unfortunately never work.
-# import os
-# if __name__ == "__main__":
-#     if os.environ.get('IN_VM') is None:
-#         test_basic_random()
+
+if __name__ == "__main__":
+    if (os.environ.get('IN_VM') is None and
+        os.environ.get('TRAVIS') is None and
+        os.environ.get('APPVEYOR') is None and
+        os.environ.get('CI') is None):
+        test_basic_random()
