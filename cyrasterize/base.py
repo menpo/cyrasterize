@@ -1,7 +1,5 @@
 import numpy as np
 
-from cyrasterize.glrasterizer import GLRasterizer
-
 
 class CyRasterizerBase(object):
     r"""Offscreen OpenGL rasterizer of fixed width and height.
@@ -56,6 +54,8 @@ class CyRasterizerBase(object):
 
     def __init__(self, width=1024, height=768, model_matrix=None,
                  view_matrix=None, projection_matrix=None):
+        # delay import so we only check for GL setup at first initialization
+        from .glrasterizer import GLRasterizer
         self._opengl = GLRasterizer(width, height)
         if not self._opengl.successfully_initialized():
             raise RuntimeError("Failed to initialize CyRasterizer")
