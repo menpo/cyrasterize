@@ -9,14 +9,6 @@ from functools import reduce
 from buildhelpers import rebuild_c_shaders
 import versioneer
 
-# Versioneer allows us to automatically generate versioning from
-# our git tagging system which makes releases simpler.
-versioneer.VCS = 'git'
-versioneer.versionfile_source = 'cyrasterize/_version.py'
-versioneer.versionfile_build = 'cyrasterize/_version.py'
-versioneer.tag_prefix = 'v'  # tags are like v1.2.0
-versioneer.parentdir_prefix = 'cyrasterize-'  # dirname like 'cyrasterize-v1.2.0'
-
 # always recreate the compiled in C shader files immediately
 rebuild_c_shaders()
 
