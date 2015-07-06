@@ -16,12 +16,10 @@ script:
 - python condaci.py auto ./conda --binstaruser $BINSTAR_USER --binstarkey $BINSTAR_KEY
 
 notifications:
-  slack: menpo:19gyWImMkOfCj0iDAgTbDlDA
+  slack:
+    rooms:
+      - menpo:19gyWImMkOfCj0iDAgTbDlDA
+    on_success: :change
+    on_failure: :change
   email: false
-  webhooks:
-    urls:
-    - https://webhooks.gitter.im/e/7599ff4870c99ba51310
-    on_success: always
-    on_failure: always
-    on_start: never
 
