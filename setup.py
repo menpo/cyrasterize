@@ -152,6 +152,6 @@ setup(name='cyrasterize',
       ext_modules=extensions,
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
-      setup_requires=['numpy>=1.9.1,<1.10'],
-      install_requires=['numpy>=1.9.1,<1.10']
+      setup_requires=['numpy>=1.10'],
+      install_requires=['numpy>=1.10']
       )
