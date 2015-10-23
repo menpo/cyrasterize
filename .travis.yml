@@ -1,5 +1,8 @@
 sudo: false
 
+git:
+  depth: 200
+
 env:
   global:
     - BINSTAR_USER: menpo
@@ -9,11 +12,10 @@ env:
 
 install:
 - wget https://raw.githubusercontent.com/menpo/condaci/v0.4.6/condaci.py -O condaci.py
-- python condaci.py setup $PYTHON_VERSION --channel $BINSTAR_USER
-- export PATH=$HOME/miniconda/bin:$PATH
+- python condaci.py setup
 
 script:
-- python condaci.py auto ./conda --binstaruser $BINSTAR_USER --binstarkey $BINSTAR_KEY
+- ~/miniconda/bin/python condaci.py build ./conda
 
 notifications:
   slack:
@@ -22,4 +24,3 @@ notifications:
     on_success: :change
     on_failure: :change
   email: false
-
