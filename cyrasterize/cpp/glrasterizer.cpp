@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glrasterizer.h"
@@ -9,7 +10,8 @@
 
 void init_program_to_texture_shader(glr_scene* scene)
 {
-	printf("init_program_and_shaders()\n");
+	fprintf(stderr, "Initialise program and shaders\n");
+
 	GLuint shaders [2];
 	shaders[0] = glr_create_shader_from_string(
 			GL_VERTEX_SHADER, texture_shader_vert_str);
@@ -22,7 +24,7 @@ void init_program_to_texture_shader(glr_scene* scene)
 
 void init_frame_buffer(glr_scene* scene)
 {
-	printf("init_frame_buffer()\n");
+	fprintf(stderr, "Initialise frame buffer\n");
 	// for a framebuffer we don't actually care about the texture unit.
 	// however, glr_init_texture will bind the unit before performing the
 	// initialization for consistency. We can safely set a (usually illegal)
@@ -67,7 +69,8 @@ void init_frame_buffer(glr_scene* scene)
 
 void render_texture_shader_to_fb(glr_scene* scene)
 {
-	printf("render_texture_shader_to_fb(...)\n");
+	fprintf(stderr, "Render texture shader to frame buffer\n");
+
 	// call the init
 	init(scene);
 
@@ -82,7 +85,7 @@ void render_texture_shader_to_fb(glr_scene* scene)
 
 void init(glr_scene* scene)
 {
-	printf("init()\n");
+	fprintf(stderr, "Initialise...\n");
 	glUseProgram(scene->program);
 	glr_check_error();
 	// now we have an instantiated glr_textured_mesh, we have to choose
