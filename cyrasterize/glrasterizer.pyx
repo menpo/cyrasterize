@@ -2,10 +2,13 @@
 
 from libc.stdint cimport uint8_t
 from libcpp cimport bool
+from libc.stdio cimport printf
+
 cimport numpy as np
 import numpy as np
-#cimport cyrasterize.c_opengl_debug as cgl
-cimport c_opengl as cgl
+#
+from c_opengl cimport *
+from c_opengl_debug cimport *
 
 # we need to be able to hold onto a context reference
 cdef extern from "./cpp/glrglfw.h":
@@ -109,6 +112,99 @@ cdef extern from "./cpp/glrasterizer.h":
     void init_program_to_texture_shader(glr_scene* scene)
     void init_frame_buffer(glr_scene* scene)
 
+
+cdef extern from "stdlib.h":
+    ctypedef unsigned long size_t
+    void free(void *ptr) nogil
+    void *realloc(void *ptr, size_t size) nogil
+    void *malloc(size_t size) nogil
+    void *calloc(size_t nmemb, size_t size) nogil
+
+
+cdef extern from "string.h":
+    void *memcpy(void *dest, void *src, size_t n) nogil
+    void *memset(void *dest, int c, size_t len)
+
+
+
+cdef extern from *:
+    ctypedef char* const_char_ptr "const char*"
+
+
+
+cdef class ShaderSource:
+
+    cdef GLenum shader
+
+    def __cinit__(self, str py_source, str shadertype):
+        cdef GLint success = 0
+        cdef GLuint error
+        cdef GLenum shader
+
+        cdef bytes py_byte_source = py_source.encode('utf-8')
+
+        cdef const GLchar* source = py_byte_source
+        print('Got that far (1)')
+        #cgl.glGetError()
+        cdef GLenum ctype
+
+        if shadertype == 'vertex':
+            ctype = GL_VERTEX_SHADER
+        elif shadertype == 'fragment':
+            ctype = GL_FRAGMENT_SHADER
+        elif shadertype == 'geometry':
+            ctype = GL_GEOMETRY_SHADER
+        else:
+            raise ValueError('Unknown shader type {}'.format(shadertype))
+
+
+        # create and compile
+        shader = glCreateShader(ctype)
+
+        glShaderSource(shader, 1, <GLchar**> &source, NULL)
+        glCompileShader(shader)
+
+        print('Compiled a {} ({}) shader'.format(shadertype, ctype))
+
+        # ensure compilation is ok
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success)
+
+        if success == GL_FALSE:
+            error = glGetError()
+            print('Shader: <%s> failed to compile (gl:%d)' % (
+                ctype, error))
+            glDeleteShader(shader)
+            return
+
+        print('Shader: %s compiled successfully' % shadertype.capitalize())
+
+
+        self.shader = shader
+
+        print(self.get_shader_log())
+
+    def __dealloc__(self):
+        # if self.shader != -1:
+        print('TODO We have to deallocate shader')
+
+    cdef bool is_compiled(self):
+        return self.shader != -1
+
+    cdef get_shader_log(self):
+
+        cdef bytes py_msg
+        cdef int info_length
+        glGetShaderiv(self.shader, GL_INFO_LOG_LENGTH, &info_length)
+        if info_length <= 0:
+            return ""
+        cdef char* msg = <char *>malloc(info_length * sizeof(char))
+        if msg == NULL:
+            return ""
+        msg[0] = "\0"
+        glGetShaderInfoLog(self.shader, info_length, NULL, msg)
+        py_msg = msg
+        free(msg)
+        return py_msg
 
 cdef class GLRasterizer:
     cdef unsigned t_width

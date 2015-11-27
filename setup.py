@@ -16,6 +16,7 @@ pyx_sources = [
     path.join(".", "cyrasterize", "glrasterizer.pyx"),
     path.join(".", "cyrasterize", "c_opengl_debug.pyx")
 ]
+
 cythonized_sources = [
     path.join(".", "cyrasterize", "glrasterizer.cpp"),
     path.join(".", "cyrasterize", "c_opengl_debug.cpp")
@@ -68,21 +69,23 @@ elif sys.platform == 'darwin':
     #                             '-framework Cocoa', '-framework IOKit',
     #                             '-framework CoreVideo']
 
-ext_name = 'cyrasterize.glrasterizer'
 
 
 # cythonize the .pyx file returning a suitable Extension
 def ext_from_source():
     from Cython.Build import cythonize
     return cythonize([
-        Extension(ext_name, pyx_sources + external_sources, **ext_kwargs)
+        Extension('cyrasterize.glrasterizer', [pyx_sources[0]] + external_sources, **ext_kwargs),
+        Extension('cyrasterize.c_opengl_debug', [pyx_sources[1]], **ext_kwargs)
     ])
 
 
 # build an extension directly from the cythonized source - no need for Cython
 def ext_from_cythonized():
-    return [Extension(ext_name, cythonized_sources + external_sources,
-                      **ext_kwargs)]
+    return [
+        Extension('cyrasterize.glrasterizer', [cythonized_sources[0]] + external_sources, **ext_kwargs),
+        Extension('cyrasterize.c_opengl_debug', [cythonized_sources[1]], **ext_kwargs)
+    ]
 
 
 try:
