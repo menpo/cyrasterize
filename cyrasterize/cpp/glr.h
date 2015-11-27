@@ -2,6 +2,7 @@
 #include "glrglfw.h"
 #include "stdint.h"
 #include <iostream>
+#include <python.h>
 
 typedef struct {
 	GLint internal_format;
@@ -50,6 +51,16 @@ typedef struct {
 } glr_light;
 
 
+//struct glr_attribute {
+//    char* name;
+//    void* data;
+//    glr_type type;
+//    glr_attribute* next;
+//};
+
+
+
+
 typedef struct {
 	glr_textured_mesh mesh;
 	glr_camera camera;
@@ -62,8 +73,8 @@ typedef struct {
 	glr_texture fb_rgb_target;
     // 3 channel float FB target (writes out f3v_data)
     glr_texture fb_f3v_target;
+//    glr_attribute* attributes;
 } glr_scene;
-
 
 
 /**

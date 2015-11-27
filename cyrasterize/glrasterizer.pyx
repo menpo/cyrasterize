@@ -4,7 +4,8 @@ from libc.stdint cimport uint8_t
 from libcpp cimport bool
 cimport numpy as np
 import numpy as np
-
+#cimport cyrasterize.c_opengl_debug as cgl
+cimport c_opengl as cgl
 
 # we need to be able to hold onto a context reference
 cdef extern from "./cpp/glrglfw.h":
@@ -130,11 +131,11 @@ cdef class GLRasterizer:
         # init our context
         cdef glr_STATUS status
         status = glr_glfw_init(&self.context)
-        if status != GLR_SUCCESS:
-            self.success = False
+        self.success = status == GLR_SUCCESS
+
+        if not self.success:
             return
-        else:
-            self.success = True
+
         self.scene.context = &self.context
         # build the program and set it
         init_program_to_texture_shader(&self.scene)

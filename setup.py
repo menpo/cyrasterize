@@ -12,8 +12,14 @@ import versioneer
 # always recreate the compiled in C shader files immediately
 rebuild_c_shaders()
 
-pyx_sources = [path.join(".", "cyrasterize", "glrasterizer.pyx")]
-cythonized_sources = [path.join(".", "cyrasterize", "glrasterizer.cpp")]
+pyx_sources = [
+    path.join(".", "cyrasterize", "glrasterizer.pyx"),
+    path.join(".", "cyrasterize", "c_opengl_debug.pyx")
+]
+cythonized_sources = [
+    path.join(".", "cyrasterize", "glrasterizer.cpp"),
+    path.join(".", "cyrasterize", "c_opengl_debug.cpp")
+]
 
 # files to compile from glrasterizer
 glrasterizer_sources = ["glrasterizer.cpp", "glr.cpp", "glrglfw.cpp"]
@@ -26,7 +32,7 @@ ext_kwargs = {
     'language': 'c++'
 }
 
-package_data_globs = ['*.pyx', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
+package_data_globs = ['*.pyx', '*.pxd', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
 
 # unfortunately, linking requirements differ on OS X vs Linux vs Windows
 # On Windows we essentially just copy the DLLs into the path so that
