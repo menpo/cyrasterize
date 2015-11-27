@@ -1,5 +1,6 @@
 # Don't check in Cython generated CPP
 cyrasterize/glrasterizer.cpp
+cyrasterize/c_opengl_debug.cpp
 *.swp
 *.pyc
 *.so
