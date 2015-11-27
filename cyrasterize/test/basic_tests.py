@@ -1,5 +1,5 @@
 import numpy as np
-from cyrasterize import CyRasterizer
+from cyrasterize import CyRasterizer, ShaderSource
 from numpy.testing import assert_allclose
 
 
@@ -14,3 +14,6 @@ def test_basic_random():
     rgb_image, float_image, mask = c.rasterize(points, trilist, colours, tcoords)
     
     assert_allclose(rgb_image, colours)
+
+def test_load_empty_shader():
+    shader = ShaderSource('', 'fragment')
