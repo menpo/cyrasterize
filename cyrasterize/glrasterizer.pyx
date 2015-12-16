@@ -44,7 +44,6 @@ cdef class ShaderSource:
         glShaderSource(uid, 1, <GLchar**> &source, NULL)
         glCompileShader(uid)
 
-        print('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
 
         # ensure compilation is ok
         glGetShaderiv(uid, GL_COMPILE_STATUS, &success)
@@ -58,7 +57,7 @@ cdef class ShaderSource:
             raise RuntimeError('Shader: <%s> failed to compile (gl:%d)' % (
                 str(self), error))
 
-        print('%s compiled successfully' % str(self))
+        print('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
 
     def __dealloc__(self):
         # if self.shader != -1:
