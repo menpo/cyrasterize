@@ -17,8 +17,6 @@ DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
 DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rb').read()
 
 
-
-
 cdef class ShaderSource:
 
     # Most of this code comes from kivy
@@ -44,7 +42,6 @@ cdef class ShaderSource:
         # create and compile
         uid = glCreateShader(self.shader_type)
         glShaderSource(uid, 1, <GLchar**> &source, NULL)
-
         glCompileShader(uid)
 
         print('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
@@ -55,17 +52,13 @@ cdef class ShaderSource:
 
         if success == GL_FALSE:
             error = glGetError()
-            print('Shader: <%s> failed to compile (gl:%d)' % (
-                str(self), error))
-            glDeleteShader(uid)
-            return
 
+            glDeleteShader(uid)
+
+            raise RuntimeError('Shader: <%s> failed to compile (gl:%d)' % (
+                str(self), error))
 
         print('%s compiled successfully' % str(self))
-
-
-
-        print(self.get_shader_log())
 
     def __dealloc__(self):
         # if self.shader != -1:
