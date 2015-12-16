@@ -4,7 +4,6 @@
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
-uniform vec4 lightDirection;
 
 layout(location = 0) in vec4 point;
 layout(location = 1) in vec2 tcoordIn;

@@ -3,15 +3,23 @@
 from libc.stdint cimport uint8_t
 from libcpp cimport bool
 from libc.stdio cimport printf
-
-cimport numpy as np
-import numpy as np
-#
 from c_opengl cimport *
 from c_opengl_debug cimport *
 
+cimport numpy as np
+import numpy as np
+
+import os.path
+import sys
+
+SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file__), 'shaders', 'texture_shader')
+DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
+DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rb').read()
+
 # we need to be able to hold onto a context reference
 cdef extern from "./cpp/glrglfw.h":
+
+
     ctypedef struct glr_glfw_context:
         int window_width
         int window_height
@@ -24,6 +32,8 @@ cdef extern from "./cpp/glrglfw.h":
         GLR_GLFW_INIT_FAILED
         GLR_GLFW_WINDOW_FAILED
         GLR_GLEW_FAILED
+
+
 
     cdef glr_glfw_context glr_build_glfw_context_offscreen(int width,
                                                            int height)
@@ -45,6 +55,7 @@ cdef extern from "./cpp/glr.h":
         unsigned texture_ID
         unsigned sampler
         unsigned uniform
+        GLuint id
 
     ctypedef struct glr_vectorset:
         void* vectors
@@ -60,8 +71,8 @@ cdef extern from "./cpp/glr.h":
         glr_vectorset f3v_data
         glr_vectorset tcoords
         glr_vectorset trilist
-        glr_vectorset texture
-        unsigned vao
+        glr_texture texture
+        GLuint vao
 
     ctypedef struct glr_camera:
         float projectionMatrix [16]
@@ -98,6 +109,15 @@ cdef extern from "./cpp/glr.h":
     glr_texture glr_build_uint8_rgb_texture(uint8_t* t, size_t w, size_t h)
     glr_texture glr_build_uint8_rgba_texture(uint8_t* t, size_t w, size_t h)
 
+    void glr_init_texture(glr_texture *texture)
+    void glr_init_framebuffer(GLuint* fbo, glr_texture* texture, GLuint attachment)
+    void glr_init_vao(glr_textured_mesh* mesh)
+    void glr_register_draw_framebuffers(GLuint fbo, size_t n_attachments,
+		 GLenum* attachments);
+    void glr_get_framebuffer(glr_texture* texture)
+    void glr_destroy_vbos_on_trianglar_mesh(glr_textured_mesh* mesh)
+
+
 
     glr_scene glr_build_scene()
 
@@ -107,11 +127,10 @@ cdef extern from "./cpp/glr.h":
     void glr_check_error()
 
 
-cdef extern from "./cpp/glrasterizer.h":
-    void render_texture_shader_to_fb(glr_scene* scene)
-    void init_program_to_texture_shader(glr_scene* scene)
-    void init_frame_buffer(glr_scene* scene)
-
+cdef extern from "GLFW/glfw3.h":
+    ctypedef struct GLFWwindow:
+        pass
+    void glfwSwapBuffers (GLFWwindow *window) nogil
 
 cdef extern from "stdlib.h":
     ctypedef unsigned long size_t
@@ -125,61 +144,55 @@ cdef extern from "string.h":
     void *memcpy(void *dest, void *src, size_t n) nogil
     void *memset(void *dest, int c, size_t len)
 
-
-
 cdef extern from *:
     ctypedef char* const_char_ptr "const char*"
 
 
-
 cdef class ShaderSource:
 
-    cdef GLenum shader
+    # Most of this code comes from kivy
+    # https://github.com/kivy/kivy/blob/master/kivy/graphics/shader.pyx
 
-    def __cinit__(self, str py_source, str shadertype):
+    cpdef GLenum uid
+    cpdef GLenum shader_type
+
+    def __init__(self, str py_source, GLenum shader_type):
+
+        self.shader_type = shader_type
+        print('Init ShaderSource(...)')
+
         cdef GLint success = 0
         cdef GLuint error
-        cdef GLenum shader
-
+        cdef GLenum uid
+        # We have to copy the python str first to bytes in a
+        # separate line before passing it to cython
         cdef bytes py_byte_source = py_source.encode('utf-8')
 
         cdef const GLchar* source = py_byte_source
-        print('Got that far (1)')
-        #cgl.glGetError()
-        cdef GLenum ctype
-
-        if shadertype == 'vertex':
-            ctype = GL_VERTEX_SHADER
-        elif shadertype == 'fragment':
-            ctype = GL_FRAGMENT_SHADER
-        elif shadertype == 'geometry':
-            ctype = GL_GEOMETRY_SHADER
-        else:
-            raise ValueError('Unknown shader type {}'.format(shadertype))
-
 
         # create and compile
-        shader = glCreateShader(ctype)
+        uid = glCreateShader(self.shader_type)
+        glShaderSource(uid, 1, <GLchar**> &source, NULL)
 
-        glShaderSource(shader, 1, <GLchar**> &source, NULL)
-        glCompileShader(shader)
+        glCompileShader(uid)
 
-        print('Compiled a {} ({}) shader'.format(shadertype, ctype))
+        print('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
 
         # ensure compilation is ok
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success)
+        glGetShaderiv(uid, GL_COMPILE_STATUS, &success)
+        self.uid = uid
 
         if success == GL_FALSE:
             error = glGetError()
             print('Shader: <%s> failed to compile (gl:%d)' % (
-                ctype, error))
-            glDeleteShader(shader)
+                str(self), error))
+            glDeleteShader(uid)
             return
 
-        print('Shader: %s compiled successfully' % shadertype.capitalize())
+
+        print('%s compiled successfully' % str(self))
 
 
-        self.shader = shader
 
         print(self.get_shader_log())
 
@@ -187,69 +200,420 @@ cdef class ShaderSource:
         # if self.shader != -1:
         print('TODO We have to deallocate shader')
 
-    cdef bool is_compiled(self):
-        return self.shader != -1
+    cpdef bool is_compiled(self):
+        return self.uid != -1
 
     cdef get_shader_log(self):
-
         cdef bytes py_msg
         cdef int info_length
-        glGetShaderiv(self.shader, GL_INFO_LOG_LENGTH, &info_length)
+        glGetShaderiv(self.uid, GL_INFO_LOG_LENGTH, &info_length)
         if info_length <= 0:
             return ""
         cdef char* msg = <char *>malloc(info_length * sizeof(char))
         if msg == NULL:
             return ""
         msg[0] = "\0"
-        glGetShaderInfoLog(self.shader, info_length, NULL, msg)
+        glGetShaderInfoLog(self.uid, info_length, NULL, msg)
         py_msg = msg
         free(msg)
         return py_msg
 
-cdef class GLRasterizer:
-    cdef unsigned t_width
-    cdef unsigned t_height
-    cdef unsigned n_points
-    cdef unsigned n_tris
-    cdef glr_glfw_context context
-    cdef glr_scene scene
-    cdef int width
-    cdef int height
+    def __hash__(self):
+        return self.uid
+
+    cpdef get_type(self):
+        return self.shader_type
+
+    cpdef get_id(self):
+        return self.uid
+
+    def __str__(self):
+        return "{} [{}]".format(self.__class__.__name__, self.uid)
+
+class VertexShader(ShaderSource):
+    def __init__(self, src):
+        super(VertexShader, self).__init__(src, GL_VERTEX_SHADER)
+
+class FragmentShader(ShaderSource):
+    def __init__(self, src):
+        super(FragmentShader, self).__init__(src, GL_FRAGMENT_SHADER)
+
+cdef float* ndarray_vector_to_c_float_array(ar):
+    ar = ar.ravel()
+
+    cdef float* c_array = <float *>malloc(ar.shape[0] * sizeof(float))
+
+    if c_array is NULL:
+        raise MemoryError()
+
+    for i in xrange(ar.shape[0]):
+        c_array[i] = <float>ar[i]
+
+    return c_array
+
+cdef int* ndarray_vector_to_c_int_array(ar):
+    ar = ar.ravel()
+
+    cdef int* c_array = <int *>malloc(ar.shape[0] * sizeof(int))
+
+    if c_array is NULL:
+        raise MemoryError()
+
+    for i in xrange(ar.shape[0]):
+        c_array[i] = <int>ar[i]
+
+    return c_array
+
+cdef class GLUniform:
+    cdef GLuint location
+    cdef np.ndarray value
+    cdef str name
+
+    def __cinit__(self, str name, GLuint location, np.ndarray value):
+        r'''A uniform opengl variable
+        Parameters
+        ----------
+
+        name : str, the variable name as a string
+
+        location: GLuint, the opengl specific identifier of the uniform
+
+        value: ndarray, the value has to have a dtype which is a subclass
+        of an int or a float. This only accepts one of the following shapes:
+
+            0,  : a single float
+            1,  : a vector array
+            2,2 : a 2x2 matrix array
+            3,3 : a 2x2 matrix array
+            4,4 : a 2x2 matrix array
+        '''
+
+        self.name = name
+        self.location = location
+        self.value = value
+
+    def __hash__(self):
+        return self.location
+
+
+    def get_type_name(self):
+        dtype = self.value.dtype
+        valid_types = [(float, 'f'), (int, 'i')]
+
+        try:
+            type_name = filter(lambda x: x[0],
+                [(np.issubdtype(dtype, stype), name) for stype, name in valid_types]
+            )[0][1]
+        except IndexError:
+            raise ValueError('Can not upload an {} array. Only arrays of ints and floats.'.format(self.value.dtype))
+
+        return type_name
+
+    def __str__(self):
+
+        return 'Name: {} Location: {} Type: {}'.format(self.name, self.location, self.get_type_name())
+
+    cpdef upload(self):
+        dtype = self.value.dtype
+        cdef np.ndarray value = self.value
+        cdef float* f_array
+        cdef int* i_array
+
+        fun_basename = 'glUniform'
+        type_name = self.get_type_name()
+
+        cdef GLint vector_len = max(self.value.shape[0], 1)
+
+        if value.ndim <= 1:
+            # Value is a vector
+            # map2fun = [glUniform1f, 1f, glUniform2f, glUniform3f, glUniform4f]
+
+            if vector_len <= 4:
+
+                fun_name = "{}{}{}".format(fun_basename, vector_len, type_name)
+
+                globals()[fun_name](*([self.location] + list(self.value)))
+            else:
+
+                # glUniform1iv
+                fun_name = "{}{}{}v".format(fun_basename, 1, type_name)
+
+                fun = globals()[fun_name]
+                if type_name == 'f':
+                    f_array = ndarray_vector_to_c_float_array(self.value)
+
+                    glUniform1fv(self.location, <GLint>vector_len, <float*> f_array)
+                    free(f_array)
+
+                elif type_name == 'i':
+                    i_array = ndarray_vector_to_c_int_array(self.value)
+
+                    glUniform1iv(self.location, <GLint>vector_len, <int*> i_array)
+                    free(i_array)
+
+                else:
+                    raise RuntimeError()
+
+
+        else:
+            # value is a matrix
+            # glUniformMatrix4fv
+
+            if type_name == 'i':
+                raise NotImplementedError()
+
+            f_array = ndarray_vector_to_c_float_array(self.value)
+
+            glUniformMatrix4fv(self.location, 1, GL_TRUE, <float*> f_array)
+
+            free(f_array)
+
+    def get_value(self):
+        return self.value
+
+cdef class GLScene:
+    cdef GLuint program
+    cdef GLuint fbo
+    cdef glr_texture fb_rgb_target
+    cdef glr_texture fb_f3v_target
+
     # store the pixels permanently
     cdef float[:, :, ::1] rgb_pixels
     cdef float[:, :, ::1] f3v_pixels
 
-    cdef bool success
+    cdef int width
+    cdef int height
+
+    cdef glr_textured_mesh mesh
+
+    cdef dict shaders
+    cdef dict uniforms
+
+    cdef glr_glfw_context context
 
     def __cinit__(self, int width, int height):
-        self.scene = glr_build_scene()
+
+
+        self.shaders = dict()
+        self.width = width
+        self.height = height
+
         self.context = glr_build_glfw_context_offscreen(width, height)
         # init our context
         cdef glr_STATUS status
         status = glr_glfw_init(&self.context)
-        self.success = status == GLR_SUCCESS
+        cdef bool success = status == GLR_SUCCESS
 
-        if not self.success:
-            return
+        self.program = glCreateProgram()
 
-        self.scene.context = &self.context
-        # build the program and set it
-        init_program_to_texture_shader(&self.scene)
-        self.width = width
-        self.height = height
-        # store out the FB pixels and wire up the Framebuffer
+        if not success:
+            raise RuntimeError('glr_glfw_init failed with error {}'.format(status))
+
         self.rgb_pixels = np.empty((self.height, self.width, 4),
                                    dtype=np.float32)
         self.f3v_pixels = np.empty((self.height, self.width, 3),
                                    dtype=np.float32)
-        self.scene.fb_rgb_target = glr_build_float_rgba_texture(
-            &self.rgb_pixels[0, 0, 0], self.width, self.height)
-        self.scene.fb_f3v_target = glr_build_float_rgb_texture(
-            &self.f3v_pixels[0, 0, 0], self.width, self.height)
-        init_frame_buffer(&self.scene)
 
-    def successfully_initialized(self):
-        return self.success
+        cdef glr_texture fb_rgb_target = glr_build_float_rgba_texture(
+            &self.rgb_pixels[0, 0, 0], self.width, self.height)
+
+
+        cdef glr_texture fb_f3v_target = glr_build_float_rgb_texture(
+            &self.f3v_pixels[0, 0, 0], self.width, self.height)
+
+        self.fb_rgb_target = fb_rgb_target
+        self.fb_f3v_target = fb_f3v_target
+
+        self.init_frame_buffer()
+
+
+
+    def attach_shaders(self, shaders):
+        for shader in shaders:
+            self.attach_shader(shader)
+
+        glLinkProgram(self.program)
+
+
+    def attach_shader(self, shader):
+        if not shader.is_compiled():
+            raise ValueError('Shader not compiled!')
+
+        if shader.get_type() in self.shaders:
+            print('Replacing existing shader!')
+
+            #glDetachShader(self.program, shader.get_id())
+
+            self.shaders[shader.get_type()] = shader
+
+        glAttachShader(self.program, shader.get_id())
+        print(self.get_program_log())
+
+        if not self.is_linked():
+            self.uniforms = dict()
+
+        #     raise RuntimeError('not linked')
+        # glDetachShader(self.program, shader.get_id())
+
+    cpdef np.ndarray get_uniform(self, name):
+        return self.uniforms[name].get_value()
+
+    cpdef set_uniform(self, name, value):
+        value = np.asarray(value)
+
+        cdef bytes c_name = name.encode('UTF-8')
+
+        location = glGetUniformLocation(self.program, c_name)
+
+        if location < 0:
+            raise RuntimeError('The is no uniform named {} inside the source.'.format(name))
+
+        print("Got location: {}".format(location))
+
+        uniform = GLUniform(name, location, value)
+
+        print('Uploading {}...'.format(uniform))
+
+        glUseProgram(self.program)
+        uniform.upload()
+        glUseProgram(0)
+
+        self.uniforms[name] = uniform
+
+
+    cdef void init_frame_buffer(self):
+        self.fb_rgb_target.unit = 0
+        self.fb_f3v_target.unit = 0
+
+        glr_init_texture(&self.fb_rgb_target)
+        glr_init_texture(&self.fb_f3v_target)
+
+
+        glGenFramebuffers(1, &self.fbo)
+
+        glr_init_framebuffer(&self.fbo, &self.fb_rgb_target, GL_COLOR_ATTACHMENT0)
+
+        glr_init_framebuffer(&self.fbo, &self.fb_f3v_target, GL_COLOR_ATTACHMENT1)
+
+        cdef GLenum buffers[2]
+        buffers = (GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1)
+
+        glr_register_draw_framebuffers(self.fbo, 2, buffers)
+
+        cdef GLuint depth_buffer;
+
+        glGenRenderbuffers(1, &depth_buffer)
+
+        glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer)
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT,
+                self.fb_rgb_target.width, self.fb_rgb_target.height)
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                GL_RENDERBUFFER, depth_buffer)
+
+        # THIS BEING GL_DEPTH_COMPONENT means that the depth information at each
+        # fragment will end up here. Note that we must manually set up the depth
+        # buffer when using framebuffers.
+
+        cdef GLenum status;
+        status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
+
+        if(status != GL_FRAMEBUFFER_COMPLETE):
+            print(self.get_program_log())
+            glr_check_error()
+            raise RuntimeError("Framebuffer error: %d 0x%04X" % (status, status))
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    cdef bool is_linked(self):
+        cdef GLint result = 0
+        glGetProgramiv(self.program, GL_LINK_STATUS, &result)
+
+        return result == GL_TRUE
+
+    cdef void stop(self):
+        '''
+            Stop using the program
+        '''
+        glUseProgram(0)
+
+
+    cdef get_program_log(self):
+        '''
+            Return the program log.
+        '''
+
+        cdef char msg[2048]
+        cdef GLsizei length
+        msg[0] = '\0'
+
+        glGetProgramInfoLog(self.program, 2048, &length, msg)
+
+        cdef bytes ret = msg[:length]
+        return ret.split(b'\0')[0].decode('utf-8')
+
+    def render_scene(self):
+        printf('here render scene\n')
+
+        glUseProgram(self.program)
+
+        # now we have an instantiated glr_textured_mesh, we have to choose
+        # some the OpenGL properties and set them. We decide that the vertices
+        # should be bound to input 0 into the shader, while tcoords should be
+        # input 1, and the float 3 vec is 2.
+
+        self.mesh.vertices.attribute_pointer = 0
+        self.mesh.tcoords.attribute_pointer = 1
+        self.mesh.f3v_data.attribute_pointer = 2
+
+        # assign the meshes texture to be on unit 1 and initialize the buffer for
+        # texture mesh
+        self.mesh.texture.unit = 1
+
+        glr_init_vao(&self.mesh)
+        glr_check_error()
+        glr_init_texture(&self.mesh.texture)
+        glr_check_error()
+
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        cdef uniform = glGetUniformLocation(self.program, "textureImage")
+        glUniform1i(uniform, self.mesh.texture.unit)
+
+        # and tcoords are all bound to the attributes and ready to go
+        glBindVertexArray(self.mesh.vao)
+        glDrawElements(GL_TRIANGLES, self.mesh.trilist.n_vectors * 3,
+                GL_UNSIGNED_INT, <GLvoid*> 0)
+
+        # 3. DETATCH + SWAP BUFFERS
+        # now we're done, can disable the vertex array (for safety)
+        glBindVertexArray(0)
+
+        cdef GLFWwindow* window = <GLFWwindow*> self.context.window
+
+        glfwSwapBuffers(<GLFWwindow *> window)
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+        glr_destroy_vbos_on_trianglar_mesh(&self.mesh)
+        glDeleteTextures(1, &self.mesh.texture.id)
+
+    def print_active_uniforms(self):
+        cdef int total = -1;
+        glGetProgramiv(self.program, GL_ACTIVE_UNIFORMS, &total)
+
+        cdef int name_len
+        cdef GLint num
+        cdef GLenum _type = GL_ZERO
+        cdef char name[100];
+
+        for t in range(total):
+            glGetActiveUniform(self.program, <GLuint> t, sizeof(name)-1,
+                &name_len, &num, &_type, name)
+
+            name[name_len] = 0
+            print("Uniform name: {}".format(name))
 
     def render_offscreen_rgb(self,
             np.ndarray[float, ndim=2, mode="c"] points not None,
@@ -257,11 +621,17 @@ cdef class GLRasterizer:
             np.ndarray[unsigned, ndim=2, mode="c"] trilist not None,
             np.ndarray[float, ndim=2, mode="c"] tcoords not None,
             np.ndarray[float, ndim=3, mode="c"] texture not None):
-        self.scene.mesh = glr_build_f3_f3_rgb_float_mesh(
+
+        self.mesh = glr_build_f3_f3_rgb_float_mesh(
             &points[0, 0], &f3v_data[0, 0], points.shape[0],
             &trilist[0, 0], trilist.shape[0], &tcoords[0, 0],
             &texture[0, 0, 0], texture.shape[1], texture.shape[0])
-        render_texture_shader_to_fb(&self.scene)
+
+        self.render_scene()
+
+        glr_get_framebuffer(&self.fb_rgb_target)
+        glr_get_framebuffer(&self.fb_f3v_target)
+
         return np.array(self.rgb_pixels), np.array(self.f3v_pixels)
 
     cpdef set_clear_color(self, np.ndarray[float, ndim=1, mode='c'] clear_c):
@@ -275,63 +645,56 @@ cdef class GLRasterizer:
         glr_get_clear_color(&clear_color[0])
         return clear_color
 
+    def get_width(self):
+        return self.context.window_width
+
+    def get_height(self):
+        return self.context.window_height
+
+    def __del__(self):
+        glr_glfw_terminate(&self.context)
+
+    def successfully_initialized(self):
+        return True
+
+cdef class GLRasterizer(GLScene):
+    cdef GLScene scene
+
+    def __init__(self, int width, int height):
+        default_vertex_shader = VertexShader(DEFAULT_VERTEX_SHADER_SRC)
+        default_fragment_shader = FragmentShader(DEFAULT_FRAGMENT_SHADER_SRC)
+
+        self.attach_shaders((default_vertex_shader, default_fragment_shader))
+
+        # Initialise model_matrix to eye(4), view_matrix, projection_matrix to eye(4)
+
     cpdef get_model_matrix(self):
-        return _copy_float_mat4(self.scene.modelMatrix)
+        return self.get_uniform('modelMatrix')
 
     cpdef get_view_matrix(self):
-        return _copy_float_mat4(self.scene.camera.viewMatrix)
+        return self.get_uniform('viewMatrix')
 
     cpdef get_projection_matrix(self):
-        return _copy_float_mat4(self.scene.camera.projectionMatrix)
+        return self.get_uniform('projectionMatrix')
 
     def get_compound_matrix(self):
         M = self.get_model_matrix()
         V = self.get_view_matrix()
         P = self.get_projection_matrix()
-        return np.dot(P, np.dot(V, M))
+
+        return P.dot(V).dot(M)
 
     cpdef set_model_matrix(self,
                            np.ndarray[float, ndim=2, mode="c"] m):
-        return _set_float_mat4(m, self.scene.modelMatrix)
+        self.set_uniform('modelMatrix', m)
 
     cpdef set_view_matrix(self,
                           np.ndarray[float, ndim=2, mode="c"] m):
-        return _set_float_mat4(m, self.scene.camera.viewMatrix)
+
+        self.set_uniform('viewMatrix', m)
 
     cpdef set_projection_matrix(self,
                     np.ndarray[float, ndim=2, mode="c"] m):
-        return _set_float_mat4(m, self.scene.camera.projectionMatrix)
 
-    def get_width(self):
-        return self.scene.context.window_width
+        return self.set_uniform('projectionMatrix', m)
 
-    def get_height(self):
-        return self.scene.context.window_height
-
-    def __del__(self):
-        glr_glfw_terminate(&self.context)
-
-cdef _copy_float_mat4(float* src):
-    r"""Copy a 4x4 float OpenGL matrix from C to Numpy
-
-    Deals with transposing the array so as to be correct in Numpy
-    """
-    cdef np.ndarray[float, ndim=2, mode='c'] tgt
-    tgt = np.empty((4, 4), dtype=np.float32)
-    for i in range(4):
-        for j in range(4):
-            # note that we transpose the matrix in and out of OpenGL, see
-            # http://stackoverflow.com/a/17718408
-            tgt[j, i] = src[i * 4 + j]
-    return tgt
-
-cdef _set_float_mat4(np.ndarray[float, ndim=2, mode="c"] src, float* tgt):
-    r"""Set a 4x4 float OpenGL matrix from numpy array.
-
-    Deals with transposing the array so as to be correct in OpenGL
-    """
-    for i in range(4):
-        for j in range(4):
-            # note that we transpose the matrix in and out of OpenGL, see
-            # http://stackoverflow.com/a/17718408
-            tgt[i * 4 + j] = src[j, i]

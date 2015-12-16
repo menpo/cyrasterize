@@ -5,699 +5,740 @@ cimport c_opengl as cgl
 cdef extern from *:
     ctypedef char* const_char_ptr "const char*"
 
+cdef extern from 'GL/glew.h':
+    const GLubyte* gluErrorString(GLenum error);
+
+class bcolors:
+    YELLOW = '\x1b[33m'
+    RED = '\x1b[31m'
+    END = '\x1b[0m'
+
+
+def printWarn(string, color=bcolors.YELLOW):
+    print(color + string + bcolors.END)
+
+
+cdef print_error():
+    code = cgl.glGetError()
+    cdef char* c_char = <char*> gluErrorString(code)
+    cdef bytes pyString = c_char
+
+    if code:
+        printWarn(" *** Error *** [{}] {}".format(pyString, code), color=bcolors.RED)
+
 cdef void   glActiveTexture (GLenum texture) with gil:
-    print("GL glActiveTexture( texture = ", texture, ", )")
+    printWarn("GL glActiveTexture( texture = " + str(texture) + ", )")
     cgl.glActiveTexture ( texture)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+
 cdef void   glAttachShader (GLuint program, GLuint shader) with gil:
-    print("GL glAttachShader( program = ", program, ", shader = ", shader, ",)")
+    printWarn("GL glAttachShader( program = " + str(program) + ", shader = " + str(shader) + ",)")
     cgl.glAttachShader ( program, shader)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBindAttribLocation (GLuint program, GLuint index,  GLchar* name) with gil:
-    print("GL glBindAttribLocation( program = ", program, ", index = ", index, ", name*=", repr(hex(<long> name)), ", )")
+    printWarn("GL glBindAttribLocation( program = " + str(program) + ", index = " + str(index) + ", name*=" + str(repr(hex(<long> name))) + ", )")
     cgl.glBindAttribLocation ( program, index, name)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBindBuffer (GLenum target, GLuint buffer) with gil:
-    print("GL glBindBuffer( target = ", target, ", buffer = ", buffer, ", )")
+    printWarn("GL glBindBuffer( target = " + str(target) + ", buffer = " + str(buffer) + ", )")
     cgl.glBindBuffer ( target, buffer)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBindFramebuffer (GLenum target, GLuint framebuffer) with gil:
-    print("GL glBindFramebuffer( target = ", target, ", framebuffer = ", framebuffer, ", )")
+    printWarn("GL glBindFramebuffer( target = " + str(target) + ", framebuffer = " + str(framebuffer) + ", )")
     cgl.glBindFramebuffer ( target, framebuffer)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBindRenderbuffer (GLenum target, GLuint renderbuffer) with gil:
-    print("GL glBindRenderbuffer( target = ", target, ", renderbuffer = ", renderbuffer, ", )")
+    printWarn("GL glBindRenderbuffer( target = " + str(target) + ", renderbuffer = " + str(renderbuffer) + ", )")
     cgl.glBindRenderbuffer ( target, renderbuffer)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBindTexture (GLenum target, GLuint texture) with gil:
-    print("GL glBindTexture( target = ", target, ", texture = ", texture, ", )")
+    printWarn("GL glBindTexture( target = " + str(target) + ", texture = " + str(texture) + ", )")
     cgl.glBindTexture ( target, texture)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBlendColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) with gil:
-    print("GL glBlendColor( red = ", red, ", green = ", green, ", blue = ", blue, ", alpha = ", alpha, ", )")
+    printWarn("GL glBlendColor( red = " + str(red) + ", green = " + str(green) + ", blue = " + str(blue) + ", alpha = " + str(alpha) + ", )")
     cgl.glBlendColor ( red, green, blue, alpha)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBlendEquation (GLenum mode) with gil:
-    print("GL glBlendEquation( mode = ", mode, ", )")
+    printWarn("GL glBlendEquation( mode = " + str(mode) + ", )")
     cgl.glBlendEquation ( mode)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBlendEquationSeparate (GLenum modeRGB, GLenum modeAlpha) with gil:
-    print("GL glBlendEquationSeparate( modeRGB = ", modeRGB, ", modeAlpha = ", modeAlpha, ", )")
+    printWarn("GL glBlendEquationSeparate( modeRGB = " + str(modeRGB) + ", modeAlpha = " + str(modeAlpha) + ", )")
     cgl.glBlendEquationSeparate ( modeRGB, modeAlpha)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBlendFunc (GLenum sfactor, GLenum dfactor) with gil:
-    print("GL glBlendFunc( sfactor = ", sfactor, ", dfactor = ", dfactor, ", )")
+    printWarn("GL glBlendFunc( sfactor = " + str(sfactor) + ", dfactor = " + str(dfactor) + ", )")
     cgl.glBlendFunc ( sfactor, dfactor)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBlendFuncSeparate (GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha) with gil:
-    print("GL glBlendFuncSeparate( srcRGB = ", srcRGB, ", dstRGB = ", dstRGB, ", srcAlpha = ", srcAlpha, ", dstAlpha = ", dstAlpha, ", )")
+    printWarn("GL glBlendFuncSeparate( srcRGB = " + str(srcRGB) + ", dstRGB = " + str(dstRGB) + ", srcAlpha = " + str(srcAlpha) + ", dstAlpha = " + str(dstAlpha) + ", )")
     cgl.glBlendFuncSeparate ( srcRGB, dstRGB, srcAlpha, dstAlpha)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBufferData (GLenum target, GLsizeiptr size,  GLvoid* data, GLenum usage) with gil:
-    print("GL glBufferData( target = ", target, ", size = ", size, ", data*=", repr(hex(<long> data)), ", usage = ", usage, ", )")
+    printWarn("GL glBufferData( target = " + str(target) + ", size = " + str(size) + ", data*=" + str(repr(hex(<long> data))) + ", usage = " + str(usage) + ", )")
     cgl.glBufferData ( target, size, data, usage)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glBufferSubData (GLenum target, GLintptr offset, GLsizeiptr size,  GLvoid* data) with gil:
-    print("GL glBufferSubData( target = ", target, ", offset = ", offset, ", size = ", size, ", data*=", repr(hex(<long> data)), ", )")
+    printWarn("GL glBufferSubData( target = " + str(target) + ", offset = " + str(offset) + ", size = " + str(size) + ", data*=" + str(repr(hex(<long> data))) + ", )")
     cgl.glBufferSubData ( target, offset, size, data)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef GLenum glCheckFramebufferStatus (GLenum target) with gil:
-    print("GL glCheckFramebufferStatus( target = ", target, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
-    return cgl.glCheckFramebufferStatus ( target)
+    printWarn("GL glCheckFramebufferStatus( target = " + str(target) + ", )")
+    print_error()
+
+    cdef GLenum ret = cgl.glCheckFramebufferStatus (target)
+    #
+    # cdef char* c_char = <char*> gluErrorString(ret)
+    # cdef bytes pyString = c_char
+    #
+    # if ret:
+    #     printWarn(" *** Error *** [{}] {}".format(pyString, ret), color=bcolors.RED)
+
+    return ret
+
+
 cdef void   glClear (GLbitfield mask) with gil:
-    print("GL glClear( mask = ", mask, ", )")
+    printWarn("GL glClear( mask = " + str(mask) + ", )")
     cgl.glClear ( mask)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glClearColor (GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) with gil:
-    print("GL glClearColor( red = ", red, ", green = ", green, ", blue = ", blue, ", alpha = ", alpha, ", )")
+    printWarn("GL glClearColor( red = " + str(red) + ", green = " + str(green) + ", blue = " + str(blue) + ", alpha = " + str(alpha) + ", )")
     cgl.glClearColor ( red, green, blue, alpha)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 #crash on android platform
 #cdef void   glClearDepthf (GLclampf depth) with gil:
-#    print("GL glClearDepthf( depth = ", depth, ", )")
+#    printWarn("GL glClearDepthf( depth = " + str(depth) + ", )")
 #    cgl.glClearDepthf ( depth)
-#    ret = cgl.glGetError()
-#    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+#    print_error()
+#    
 cdef void   glClearStencil (GLint s) with gil:
-    print("GL glClearStencil( s = ", s, ", )")
+    printWarn("GL glClearStencil( s = " + str(s) + ", )")
     cgl.glClearStencil ( s)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) with gil:
-    print("GL glColorMask( red = ", red, ", green = ", green, ", blue = ", blue, ", alpha = ", alpha, ", )")
+    printWarn("GL glColorMask( red = " + str(red) + ", green = " + str(green) + ", blue = " + str(blue) + ", alpha = " + str(alpha) + ", )")
     cgl.glColorMask ( red, green, blue, alpha)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glCompileShader (GLuint shader) with gil:
-    print("GL glCompileShader( shader = ", shader, ", )")
+    printWarn("GL glCompileShader( shader = " + str(shader) + ", )")
     cgl.glCompileShader ( shader)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glCompressedTexImage2D (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize,  GLvoid* data) with gil:
-    print("GL glCompressedTexImage2D( target = ", target, ", level = ", level, ", internalformat = ", internalformat, ", width = ", width, ", height = ", height, ", border = ", border, ", imageSize = ", imageSize, ", data*=", repr(hex(<long> data)), ", )")
+    printWarn("GL glCompressedTexImage2D( target = " + str(target) + ", level = " + str(level) + ", internalformat = " + str(internalformat) + ", width = " + str(width) + ", height = " + str(height) + ", border = " + str(border) + ", imageSize = " + str(imageSize) + ", data*=" + str(repr(hex(<long> data))) + ", )")
     cgl.glCompressedTexImage2D ( target, level, internalformat, width, height, border, imageSize, data)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glCompressedTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize,  GLvoid* data) with gil:
-    print("GL glCompressedTexSubImage2D( target = ", target, ", level = ", level, ", xoffset = ", xoffset, ", yoffset = ", yoffset, ", width = ", width, ", height = ", height, ", format = ", format, ", imageSize = ", imageSize, ", data*=", repr(hex(<long> data)), ", )")
+    printWarn("GL glCompressedTexSubImage2D( target = " + str(target) + ", level = " + str(level) + ", xoffset = " + str(xoffset) + ", yoffset = " + str(yoffset) + ", width = " + str(width) + ", height = " + str(height) + ", format = " + str(format) + ", imageSize = " + str(imageSize) + ", data*=" + str(repr(hex(<long> data))) + ", )")
     cgl.glCompressedTexSubImage2D ( target, level, xoffset, yoffset, width, height, format, imageSize, data)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) with gil:
-    print("GL glCopyTexImage2D( target = ", target, ", level = ", level, ", internalformat = ", internalformat, ", x = ", x, ", y = ", y, ", width = ", width, ", height = ", height, ", border = ", border, ", )")
+    printWarn("GL glCopyTexImage2D( target = " + str(target) + ", level = " + str(level) + ", internalformat = " + str(internalformat) + ", x = " + str(x) + ", y = " + str(y) + ", width = " + str(width) + ", height = " + str(height) + ", border = " + str(border) + ", )")
     cgl.glCopyTexImage2D ( target, level, internalformat, x, y, width, height, border)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height) with gil:
-    print("GL glCopyTexSubImage2D( target = ", target, ", level = ", level, ", xoffset = ", xoffset, ", yoffset = ", yoffset, ", x = ", x, ", y = ", y, ", width = ", width, ", height = ", height, ", )")
+    printWarn("GL glCopyTexSubImage2D( target = " + str(target) + ", level = " + str(level) + ", xoffset = " + str(xoffset) + ", yoffset = " + str(yoffset) + ", x = " + str(x) + ", y = " + str(y) + ", width = " + str(width) + ", height = " + str(height) + ", )")
     cgl.glCopyTexSubImage2D ( target, level, xoffset, yoffset, x, y, width, height)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef GLuint glCreateProgram () with gil:
-    print("GL glCreateProgram( )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glCreateProgram( )")
+    print_error()
+    
     return cgl.glCreateProgram ()
 cdef GLuint glCreateShader (GLenum type) with gil:
-    print("GL glCreateShader( type = ", type, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glCreateShader( type = " + str(type) + ", )")
+    print_error()
+    
     return cgl.glCreateShader ( type)
 cdef void   glCullFace (GLenum mode) with gil:
-    print("GL glCullFace( mode = ", mode, ", )")
+    printWarn("GL glCullFace( mode = " + str(mode) + ", )")
     cgl.glCullFace ( mode)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteBuffers (GLsizei n,  GLuint* buffers) with gil:
-    print("GL glDeleteBuffers( n = ", n, ", buffers*=", repr(hex(<long> buffers)), ", )")
+    printWarn("GL glDeleteBuffers( n = " + str(n) + ", buffers*=" + str(repr(hex(<long> buffers))) + ", )")
     cgl.glDeleteBuffers ( n, buffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteFramebuffers (GLsizei n,  GLuint* framebuffers) with gil:
-    print("GL glDeleteFramebuffers( n = ", n, ", framebuffers*=", repr(hex(<long> framebuffers)), ", )")
+    printWarn("GL glDeleteFramebuffers( n = " + str(n) + ", framebuffers*=" + str(repr(hex(<long> framebuffers))) + ", )")
     cgl.glDeleteFramebuffers ( n, framebuffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteProgram (GLuint program) with gil:
-    print("GL glDeleteProgram( program = ", program, ", )")
+    printWarn("GL glDeleteProgram( program = " + str(program) + ", )")
     cgl.glDeleteProgram ( program)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteRenderbuffers (GLsizei n,  GLuint* renderbuffers) with gil:
-    print("GL glDeleteRenderbuffers( n = ", n, ", renderbuffers*=", repr(hex(<long> renderbuffers)), ", )")
+    printWarn("GL glDeleteRenderbuffers( n = " + str(n) + ", renderbuffers*=" + str(repr(hex(<long> renderbuffers))) + ", )")
     cgl.glDeleteRenderbuffers ( n, renderbuffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteShader (GLuint shader) with gil:
-    print("GL glDeleteShader( shader = ", shader, ", )")
+    printWarn("GL glDeleteShader( shader = " + str(shader) + ", )")
     cgl.glDeleteShader ( shader)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDeleteTextures (GLsizei n,  GLuint* textures) with gil:
-    print("GL glDeleteTextures( n = ", n, ", textures*=", repr(hex(<long> textures)), ", )")
+    printWarn("GL glDeleteTextures( n = " + str(n) + ", textures*=" + str(repr(hex(<long> textures))) + ", )")
     cgl.glDeleteTextures ( n, textures)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDepthFunc (GLenum func) with gil:
-    print("GL glDepthFunc( func = ", func, ", )")
+    printWarn("GL glDepthFunc( func = " + str(func) + ", )")
     cgl.glDepthFunc ( func)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDepthMask (GLboolean flag) with gil:
-    print("GL glDepthMask( flag = ", flag, ", )")
+    printWarn("GL glDepthMask( flag = " + str(flag) + ", )")
     cgl.glDepthMask ( flag)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 #crash on android platform
 #cdef void   glDepthRangef (GLclampf zNear, GLclampf zFar) with gil:
-#    print("GL glDepthRangef( zNear = ", zNear, ", zFar = ", zFar, ", )")
+#    printWarn("GL glDepthRangef( zNear = " + str(zNear) + ", zFar = " + str(zFar) + ", )")
 #    cgl.glDepthRangef ( zNear, zFar)
 #    ret = glGetError()
 #    if ret: print("ERR %d / %x" % (ret, ret))
 cdef void   glDetachShader (GLuint program, GLuint shader) with gil:
-    print("GL glDetachShader( program = ", program, ", shader = ", shader, ", )")
+    printWarn("GL glDetachShader( program = " + str(program) + ", shader = " + str(shader) + ", )")
     cgl.glDetachShader ( program, shader)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDisable (GLenum cap) with gil:
-    print("GL glDisable( cap = ", cap, ", )")
+    printWarn("GL glDisable( cap = " + str(cap) + ", )")
     cgl.glDisable ( cap)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDisableVertexAttribArray (GLuint index) with gil:
-    print("GL glDisableVertexAttribArray( index = ", index, ", )")
+    printWarn("GL glDisableVertexAttribArray( index = " + str(index) + ", )")
     cgl.glDisableVertexAttribArray ( index)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDrawArrays (GLenum mode, GLint first, GLsizei count) with gil:
-    print("GL glDrawArrays( mode = ", mode, ", first = ", first, ", count = ", count, ", )")
+    printWarn("GL glDrawArrays( mode = " + str(mode) + ", first = " + str(first) + ", count = " + str(count) + ", )")
     cgl.glDrawArrays ( mode, first, count)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glDrawElements (GLenum mode, GLsizei count, GLenum type,  GLvoid* indices) with gil:
-    print("GL glDrawElements( mode = ", mode, ", count = ", count, ", type = ", type, ", indices*=", repr(hex(<long> indices)), ", )")
+    printWarn("GL glDrawElements( mode = " + str(mode) + ", count = " + str(count) + ", type = " + str(type) + ", indices*=" + str(repr(hex(<long> indices))) + ", )")
     cgl.glDrawElements ( mode, count, type, indices)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glEnable (GLenum cap) with gil:
-    print("GL glEnable( cap = ", cap, ", )")
+    printWarn("GL glEnable( cap = " + str(cap) + ", )")
     cgl.glEnable ( cap)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glEnableVertexAttribArray (GLuint index) with gil:
-    print("GL glEnableVertexAttribArray( index = ", index, ", )")
+    printWarn("GL glEnableVertexAttribArray( index = " + str(index) + ", )")
     cgl.glEnableVertexAttribArray ( index)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glFinish () with gil:
-    print("GL glFinish( )")
+    printWarn("GL glFinish( )")
     cgl.glFinish ()
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glFlush () with gil:
-    print("GL glFlush( )")
+    printWarn("GL glFlush( )")
     cgl.glFlush ()
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glFramebufferRenderbuffer (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) with gil:
-    print("GL glFramebufferRenderbuffer( target = ", target, ", attachment = ", attachment, ", renderbuffertarget = ", renderbuffertarget, ", renderbuffer = ", renderbuffer, ", )")
+    printWarn("GL glFramebufferRenderbuffer( target = " + str(target) + ", attachment = " + str(attachment) + ", renderbuffertarget = " + str(renderbuffertarget) + ", renderbuffer = " + str(renderbuffer) + ", )")
     cgl.glFramebufferRenderbuffer ( target, attachment, renderbuffertarget, renderbuffer)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glFramebufferTexture2D (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level) with gil:
-    print("GL glFramebufferTexture2D( target = ", target, ", attachment = ", attachment, ", textarget = ", textarget, ", texture = ", texture, ", level = ", level, ", )")
+    printWarn("GL glFramebufferTexture2D( target = " + str(target) + ", attachment = " + str(attachment) + ", textarget = " + str(textarget) + ", texture = " + str(texture) + ", level = " + str(level) + ", )")
     cgl.glFramebufferTexture2D ( target, attachment, textarget, texture, level)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glFrontFace (GLenum mode) with gil:
-    print("GL glFrontFace( mode = ", mode, ", )")
+    printWarn("GL glFrontFace( mode = " + str(mode) + ", )")
     cgl.glFrontFace ( mode)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGenBuffers (GLsizei n, GLuint* buffers) with gil:
-    print("GL glGenBuffers( n = ", n, ", buffers*=", repr(hex(<long> buffers)), ", )")
+    printWarn("GL glGenBuffers( n = " + str(n) + ", buffers*=" + str(repr(hex(<long> buffers))) + ", )")
     cgl.glGenBuffers ( n, buffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGenerateMipmap (GLenum target) with gil:
-    print("GL glGenerateMipmap( target = ", target, ", )")
+    printWarn("GL glGenerateMipmap( target = " + str(target) + ", )")
     cgl.glGenerateMipmap ( target)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGenFramebuffers (GLsizei n, GLuint* framebuffers) with gil:
-    print("GL glGenFramebuffers( n = ", n, ", framebuffers*=", repr(hex(<long> framebuffers)), ", )")
+    printWarn("GL glGenFramebuffers( n = " + str(n) + ", framebuffers*=" + str(repr(hex(<long> framebuffers))) + ", )")
     cgl.glGenFramebuffers ( n, framebuffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGenRenderbuffers (GLsizei n, GLuint* renderbuffers) with gil:
-    print("GL glGenRenderbuffers( n = ", n, ", renderbuffers*=", repr(hex(<long> renderbuffers)), ", )")
+    printWarn("GL glGenRenderbuffers( n = " + str(n) + ", renderbuffers*=" + str(repr(hex(<long> renderbuffers))) + ", )")
     cgl.glGenRenderbuffers ( n, renderbuffers)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGenTextures (GLsizei n, GLuint* textures) with gil:
-    print("GL glGenTextures( n = ", n, ", textures*=", repr(hex(<long> textures)), ", )")
+    printWarn("GL glGenTextures( n = " + str(n) + ", textures*=" + str(repr(hex(<long> textures))) + ", )")
     cgl.glGenTextures ( n, textures)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetActiveAttrib (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name) with gil:
-    print("GL glGetActiveAttrib( program = ", program, ", index = ", index, ", bufsize = ", bufsize, ", length*=", repr(hex(<long> length)), ", size*=", repr(hex(<long> size)), ", type*=", repr(hex(<long> type)), ", name*=", repr(hex(<long> name)), ", )")
+    printWarn("GL glGetActiveAttrib( program = " + str(program) + ", index = " + str(index) + ", bufsize = " + str(bufsize) + ", length*=" + str(repr(hex(<long> length))) + ", size*=" + str(repr(hex(<long> size))) + ", type*=" + str(repr(hex(<long> type))) + ", name*=" + str(repr(hex(<long> name))) + ", )")
     cgl.glGetActiveAttrib ( program, index, bufsize, length, size, type, name)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetActiveUniform (GLuint program, GLuint index, GLsizei bufsize, GLsizei* length, GLint* size, GLenum* type, GLchar* name) with gil:
-    print("GL glGetActiveUniform( program = ", program, ", index = ", index, ", bufsize = ", bufsize, ", length*=", repr(hex(<long> length)), ", size*=", repr(hex(<long> size)), ", type*=", repr(hex(<long> type)), ", name*=", repr(hex(<long> name)), ", )")
+    printWarn("GL glGetActiveUniform( program = " + str(program) + ", index = " + str(index) + ", bufsize = " + str(bufsize) + ", length*=" + str(repr(hex(<long> length))) + ", size*=" + str(repr(hex(<long> size))) + ", type*=" + str(repr(hex(<long> type))) + ", name*=" + str(repr(hex(<long> name))) + ", )")
     cgl.glGetActiveUniform ( program, index, bufsize, length, size, type, name)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetAttachedShaders (GLuint program, GLsizei maxcount, GLsizei* count, GLuint* shaders) with gil:
-    print("GL glGetAttachedShaders( program = ", program, ", maxcount = ", maxcount, ", count*=", repr(hex(<long> count)), ", shaders*=", repr(hex(<long> shaders)), ", )")
+    printWarn("GL glGetAttachedShaders( program = " + str(program) + ", maxcount = " + str(maxcount) + ", count*=" + str(repr(hex(<long> count))) + ", shaders*=" + str(repr(hex(<long> shaders))) + ", )")
     cgl.glGetAttachedShaders ( program, maxcount, count, shaders)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef int    glGetAttribLocation (GLuint program,  GLchar* name) with gil:
-    print("GL glGetAttribLocation( program = ", program, ", name*=", repr(hex(<long> name)), ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glGetAttribLocation( program = " + str(program) + ", name*=" + str(repr(hex(<long> name))) + ", )")
+    print_error()
+    
     return cgl.glGetAttribLocation ( program, name)
 cdef void   glGetBooleanv (GLenum pname, GLboolean* params) with gil:
-    print("GL glGetBooleanv( pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetBooleanv( pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetBooleanv ( pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetBufferParameteriv (GLenum target, GLenum pname, GLint* params) with gil:
-    print("GL glGetBufferParameteriv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetBufferParameteriv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetBufferParameteriv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef GLenum glGetError () with gil:
-    print("GL glGetError( )")
     return cgl.glGetError ()
+
 cdef void   glGetFloatv (GLenum pname, GLfloat* params) with gil:
-    print("GL glGetFloatv( pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetFloatv( pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetFloatv ( pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetFramebufferAttachmentParameteriv (GLenum target, GLenum attachment, GLenum pname, GLint* params) with gil:
-    print("GL glGetFramebufferAttachmentParameteriv( target = ", target, ", attachment = ", attachment, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetFramebufferAttachmentParameteriv( target = " + str(target) + ", attachment = " + str(attachment) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetFramebufferAttachmentParameteriv ( target, attachment, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetIntegerv (GLenum pname, GLint* params) with gil:
-    print("GL glGetIntegerv( pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetIntegerv( pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetIntegerv ( pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetProgramiv (GLuint program, GLenum pname, GLint* params) with gil:
-    print("GL glGetProgramiv( program = ", program, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetProgramiv( program = " + str(program) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetProgramiv ( program, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetProgramInfoLog (GLuint program, GLsizei bufsize, GLsizei* length, GLchar* infolog) with gil:
-    print("GL glGetProgramInfoLog( program = ", program, ", bufsize = ", bufsize, ", length*=", repr(hex(<long> length)), ", infolog*=", repr(hex(<long> infolog)), ", )")
+    printWarn("GL glGetProgramInfoLog( program = " + str(program) + ", bufsize = " + str(bufsize) + ", length*=" + str(repr(hex(<long> length))) + ", infolog*=" + str(repr(hex(<long> infolog))) + ", )")
     cgl.glGetProgramInfoLog ( program, bufsize, length, infolog)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetRenderbufferParameteriv (GLenum target, GLenum pname, GLint* params) with gil:
-    print("GL glGetRenderbufferParameteriv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetRenderbufferParameteriv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetRenderbufferParameteriv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetShaderiv (GLuint shader, GLenum pname, GLint* params) with gil:
-    print("GL glGetShaderiv( shader = ", shader, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetShaderiv( shader = " + str(shader) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetShaderiv ( shader, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetShaderInfoLog (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* infolog) with gil:
-    print("GL glGetShaderInfoLog( shader = ", shader, ", bufsize = ", bufsize, ", length*=", repr(hex(<long> length)), ", infolog*=", repr(hex(<long> infolog)), ", )")
+    printWarn("GL glGetShaderInfoLog( shader = " + str(shader) + ", bufsize = " + str(bufsize) + ", length*=" + str(repr(hex(<long> length))) + ", infolog*=" + str(repr(hex(<long> infolog))) + ", )")
     cgl.glGetShaderInfoLog ( shader, bufsize, length, infolog)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 # Skipping generation of: "#cdef void   glGetShaderPrecisionFormat (cgl.GLenum shadertype, cgl.GLenum precisiontype, cgl.GLint* range, cgl.GLint* precision)"
 cdef void   glGetShaderSource (GLuint shader, GLsizei bufsize, GLsizei* length, GLchar* source) with gil:
-    print("GL glGetShaderSource( shader = ", shader, ", bufsize = ", bufsize, ", length*=", repr(hex(<long> length)), ", source*=", repr(hex(<long> source)), ", )")
+    printWarn("GL glGetShaderSource( shader = " + str(shader) + ", bufsize = " + str(bufsize) + ", length*=" + str(repr(hex(<long> length))) + ", source*=" + str(repr(hex(<long> source))) + ", )")
     cgl.glGetShaderSource ( shader, bufsize, length, source)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef   GLubyte*  glGetString (GLenum name) with gil:
-    print("GL glGetString( name = ", name, ", )")
+    printWarn("GL glGetString( name = " + str(name) + ", )")
     return <GLubyte*><char*>cgl.glGetString ( name)
 cdef void   glGetTexParameterfv (GLenum target, GLenum pname, GLfloat* params) with gil:
-    print("GL glGetTexParameterfv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetTexParameterfv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetTexParameterfv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetTexParameteriv (GLenum target, GLenum pname, GLint* params) with gil:
-    print("GL glGetTexParameteriv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetTexParameteriv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetTexParameteriv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetUniformfv (GLuint program, GLint location, GLfloat* params) with gil:
-    print("GL glGetUniformfv( program = ", program, ", location = ", location, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetUniformfv( program = " + str(program) + ", location = " + str(location) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetUniformfv ( program, location, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetUniformiv (GLuint program, GLint location, GLint* params) with gil:
-    print("GL glGetUniformiv( program = ", program, ", location = ", location, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetUniformiv( program = " + str(program) + ", location = " + str(location) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetUniformiv ( program, location, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef int    glGetUniformLocation (GLuint program,  GLchar* name) with gil:
-    print("GL glGetUniformLocation( program = ", program, ", name*=", repr(hex(<long> name)), ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glGetUniformLocation( program = " + str(program) + ", name*=" + str(repr(hex(<long> name))) + ", )")
+    print_error()
+    
     return cgl.glGetUniformLocation ( program, name)
 cdef void   glGetVertexAttribfv (GLuint index, GLenum pname, GLfloat* params) with gil:
-    print("GL glGetVertexAttribfv( index = ", index, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetVertexAttribfv( index = " + str(index) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetVertexAttribfv ( index, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetVertexAttribiv (GLuint index, GLenum pname, GLint* params) with gil:
-    print("GL glGetVertexAttribiv( index = ", index, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glGetVertexAttribiv( index = " + str(index) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glGetVertexAttribiv ( index, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glGetVertexAttribPointerv (GLuint index, GLenum pname, GLvoid** pointer) with gil:
-    print("GL glGetVertexAttribPointerv( index = ", index, ", pname = ", pname, ", pointer**=", repr(hex(<long> pointer)), ", )")
+    printWarn("GL glGetVertexAttribPointerv( index = " + str(index) + ", pname = " + str(pname) + ", pointer**=" + str(repr(hex(<long> pointer))) + ", )")
     cgl.glGetVertexAttribPointerv ( index, pname, pointer)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void   glHint (GLenum target, GLenum mode) with gil:
-    print("GL glHint( target = ", target, ", mode = ", mode, ", )")
+    printWarn("GL glHint( target = " + str(target) + ", mode = " + str(mode) + ", )")
     cgl.glHint ( target, mode)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef GLboolean  glIsBuffer (GLuint buffer) with gil:
-    print("GL glIsBuffer( buffer = ", buffer, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsBuffer( buffer = " + str(buffer) + ", )")
+    print_error()
+    
     return cgl.glIsBuffer ( buffer)
 cdef GLboolean  glIsEnabled (GLenum cap) with gil:
-    print("GL glIsEnabled( cap = ", cap, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsEnabled( cap = " + str(cap) + ", )")
+    print_error()
+    
     return cgl.glIsEnabled ( cap)
 cdef GLboolean  glIsFramebuffer (GLuint framebuffer) with gil:
-    print("GL glIsFramebuffer( framebuffer = ", framebuffer, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsFramebuffer( framebuffer = " + str(framebuffer) + ", )")
+    print_error()
+    
     return cgl.glIsFramebuffer ( framebuffer)
 cdef GLboolean  glIsProgram (GLuint program) with gil:
-    print("GL glIsProgram( program = ", program, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsProgram( program = " + str(program) + ", )")
+    print_error()
+    
     return cgl.glIsProgram ( program)
 cdef GLboolean  glIsRenderbuffer (GLuint renderbuffer) with gil:
-    print("GL glIsRenderbuffer( renderbuffer = ", renderbuffer, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsRenderbuffer( renderbuffer = " + str(renderbuffer) + ", )")
+    print_error()
+    
     return cgl.glIsRenderbuffer ( renderbuffer)
 cdef GLboolean  glIsShader (GLuint shader) with gil:
-    print("GL glIsShader( shader = ", shader, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsShader( shader = " + str(shader) + ", )")
+    print_error()
+    
     return cgl.glIsShader ( shader)
 cdef GLboolean  glIsTexture (GLuint texture) with gil:
-    print("GL glIsTexture( texture = ", texture, ", )")
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    printWarn("GL glIsTexture( texture = " + str(texture) + ", )")
+    print_error()
+    
     return cgl.glIsTexture ( texture)
 cdef void  glLineWidth (GLfloat width) with gil:
-    print("GL glLineWidth( width = ", width, ", )")
+    printWarn("GL glLineWidth( width = " + str(width) + ", )")
     cgl.glLineWidth ( width)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glLinkProgram (GLuint program) with gil:
-    print("GL glLinkProgram( program = ", program, ", )")
+    printWarn("GL glLinkProgram( program = " + str(program) + ", )")
     cgl.glLinkProgram ( program)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glPixelStorei (GLenum pname, GLint param) with gil:
-    print("GL glPixelStorei( pname = ", pname, ", param = ", param, ", )")
+    printWarn("GL glPixelStorei( pname = " + str(pname) + ", param = " + str(param) + ", )")
     cgl.glPixelStorei ( pname, param)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glPolygonOffset (GLfloat factor, GLfloat units) with gil:
-    print("GL glPolygonOffset( factor = ", factor, ", units = ", units, ", )")
+    printWarn("GL glPolygonOffset( factor = " + str(factor) + ", units = " + str(units) + ", )")
     cgl.glPolygonOffset ( factor, units)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels) with gil:
-    print("GL glReadPixels( x = ", x, ", y = ", y, ", width = ", width, ", height = ", height, ", format = ", format, ", type = ", type, ", pixels*=", repr(hex(<long> pixels)), ", )")
+    printWarn("GL glReadPixels( x = " + str(x) + ", y = " + str(y) + ", width = " + str(width) + ", height = " + str(height) + ", format = " + str(format) + ", type = " + str(type) + ", pixels*=" + str(repr(hex(<long> pixels))) + ", )")
     cgl.glReadPixels ( x, y, width, height, format, type, pixels)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 # Skipping generation of: "#cdef void  glReleaseShaderCompiler ()"
 cdef void  glRenderbufferStorage (GLenum target, GLenum internalformat, GLsizei width, GLsizei height) with gil:
-    print("GL glRenderbufferStorage( target = ", target, ", internalformat = ", internalformat, ", width = ", width, ", height = ", height, ", )")
+    printWarn("GL glRenderbufferStorage( target = " + str(target) + ", internalformat = " + str(internalformat) + ", width = " + str(width) + ", height = " + str(height) + ", )")
     cgl.glRenderbufferStorage ( target, internalformat, width, height)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glSampleCoverage (GLclampf value, GLboolean invert) with gil:
-    print("GL glSampleCoverage( value = ", value, ", invert = ", invert, ", )")
+    printWarn("GL glSampleCoverage( value = " + str(value) + ", invert = " + str(invert) + ", )")
     cgl.glSampleCoverage ( value, invert)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glScissor (GLint x, GLint y, GLsizei width, GLsizei height) with gil:
-    print("GL glScissor( x = ", x, ", y = ", y, ", width = ", width, ", height = ", height, ", )")
+    printWarn("GL glScissor( x = " + str(x) + ", y = " + str(y) + ", width = " + str(width) + ", height = " + str(height) + ", )")
     cgl.glScissor ( x, y, width, height)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 # Skipping generation of: "#cdef void  glShaderBinary (cgl.GLsizei n,  cgl.GLuint* shaders, cgl.GLenum binaryformat,  cgl.GLvoid* binary, cgl.GLsizei length)"
 cdef void  glShaderSource (GLuint shader, GLsizei count,  GLchar** string,  GLint* length) with gil:
-    print("GL glShaderSource( shader = ", shader, ", count = ", count, ", string**=", repr(hex(<long> string)), ", length*=", repr(hex(<long> length)), ", )")
+    printWarn("GL glShaderSource( shader = " + str(shader) + ", count = " + str(count) + ", string**=" + str(repr(hex(<long> string))) + ", length*=" + str(repr(hex(<long> length))) + ", )")
     cgl.glShaderSource ( shader, count, <const_char_ptr*>string, length)
     ret = glGetError()
     if ret: print("ERR %d / %x" % (ret, ret))
 cdef void  glStencilFunc (GLenum func, GLint ref, GLuint mask) with gil:
-    print("GL glStencilFunc( func = ", func, ", ref = ", ref, ", mask = ", mask, ", )")
+    printWarn("GL glStencilFunc( func = " + str(func) + ", ref = " + str(ref) + ", mask = " + str(mask) + ", )")
     cgl.glStencilFunc ( func, ref, mask)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glStencilFuncSeparate (GLenum face, GLenum func, GLint ref, GLuint mask) with gil:
-    print("GL glStencilFuncSeparate( face = ", face, ", func = ", func, ", ref = ", ref, ", mask = ", mask, ", )")
+    printWarn("GL glStencilFuncSeparate( face = " + str(face) + ", func = " + str(func) + ", ref = " + str(ref) + ", mask = " + str(mask) + ", )")
     cgl.glStencilFuncSeparate ( face, func, ref, mask)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glStencilMask (GLuint mask) with gil:
-    print("GL glStencilMask( mask = ", mask, ", )")
+    printWarn("GL glStencilMask( mask = " + str(mask) + ", )")
     cgl.glStencilMask ( mask)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glStencilMaskSeparate (GLenum face, GLuint mask) with gil:
-    print("GL glStencilMaskSeparate( face = ", face, ", mask = ", mask, ", )")
+    printWarn("GL glStencilMaskSeparate( face = " + str(face) + ", mask = " + str(mask) + ", )")
     cgl.glStencilMaskSeparate ( face, mask)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glStencilOp (GLenum fail, GLenum zfail, GLenum zpass) with gil:
-    print("GL glStencilOp( fail = ", fail, ", zfail = ", zfail, ", zpass = ", zpass, ", )")
+    printWarn("GL glStencilOp( fail = " + str(fail) + ", zfail = " + str(zfail) + ", zpass = " + str(zpass) + ", )")
     cgl.glStencilOp ( fail, zfail, zpass)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glStencilOpSeparate (GLenum face, GLenum fail, GLenum zfail, GLenum zpass) with gil:
-    print("GL glStencilOpSeparate( face = ", face, ", fail = ", fail, ", zfail = ", zfail, ", zpass = ", zpass, ", )")
+    printWarn("GL glStencilOpSeparate( face = " + str(face) + ", fail = " + str(fail) + ", zfail = " + str(zfail) + ", zpass = " + str(zpass) + ", )")
     cgl.glStencilOpSeparate ( face, fail, zfail, zpass)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexImage2D (GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type,  GLvoid* pixels) with gil:
-    print("GL glTexImage2D( target = ", target, ", level = ", level, ", internalformat = ", internalformat, ", width = ", width, ", height = ", height, ", border = ", border, ", format = ", format, ", type = ", type, ", pixels*=", repr(hex(<long> pixels)), ", )")
+    printWarn("GL glTexImage2D( target = " + str(target) + ", level = " + str(level) + ", internalformat = " + str(internalformat) + ", width = " + str(width) + ", height = " + str(height) + ", border = " + str(border) + ", format = " + str(format) + ", type = " + str(type) + ", pixels*=" + str(repr(hex(<long> pixels))) + ", )")
     cgl.glTexImage2D ( target, level, internalformat, width, height, border, format, type, pixels)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexParameterf (GLenum target, GLenum pname, GLfloat param) with gil:
-    print("GL glTexParameterf( target = ", target, ", pname = ", pname, ", param = ", param, ", )")
+    printWarn("GL glTexParameterf( target = " + str(target) + ", pname = " + str(pname) + ", param = " + str(param) + ", )")
     cgl.glTexParameterf ( target, pname, param)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexParameterfv (GLenum target, GLenum pname,  GLfloat* params) with gil:
-    print("GL glTexParameterfv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glTexParameterfv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glTexParameterfv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexParameteri (GLenum target, GLenum pname, GLint param) with gil:
-    print("GL glTexParameteri( target = ", target, ", pname = ", pname, ", param = ", param, ", )")
+    printWarn("GL glTexParameteri( target = " + str(target) + ", pname = " + str(pname) + ", param = " + str(param) + ", )")
     cgl.glTexParameteri ( target, pname, param)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexParameteriv (GLenum target, GLenum pname,  GLint* params) with gil:
-    print("GL glTexParameteriv( target = ", target, ", pname = ", pname, ", params*=", repr(hex(<long> params)), ", )")
+    printWarn("GL glTexParameteriv( target = " + str(target) + ", pname = " + str(pname) + ", params*=" + str(repr(hex(<long> params))) + ", )")
     cgl.glTexParameteriv ( target, pname, params)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type,  GLvoid* pixels) with gil:
-    print("GL glTexSubImage2D( target = ", target, ", level = ", level, ", xoffset = ", xoffset, ", yoffset = ", yoffset, ", width = ", width, ", height = ", height, ", format = ", format, ", type = ", type, ", pixels*=", repr(hex(<long> pixels)), ", )")
+    printWarn("GL glTexSubImage2D( target = " + str(target) + ", level = " + str(level) + ", xoffset = " + str(xoffset) + ", yoffset = " + str(yoffset) + ", width = " + str(width) + ", height = " + str(height) + ", format = " + str(format) + ", type = " + str(type) + ", pixels*=" + str(repr(hex(<long> pixels))) + ", )")
     cgl.glTexSubImage2D ( target, level, xoffset, yoffset, width, height, format, type, pixels)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform1f (GLint location, GLfloat x) with gil:
-    print("GL glUniform1f( location = ", location, ", x = ", x, ", )")
+    printWarn("GL glUniform1f( location = " + str(location) + ", x = " + str(x) + ", )")
     cgl.glUniform1f ( location, x)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform1fv (GLint location, GLsizei count,  GLfloat* v) with gil:
-    print("GL glUniform1fv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform1fv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform1fv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform1i (GLint location, GLint x) with gil:
-    print("GL glUniform1i( location = ", location, ", x = ", x, ", )")
+    printWarn("GL glUniform1i( location = " + str(location) + ", x = " + str(x) + ", )")
     cgl.glUniform1i ( location, x)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform1iv (GLint location, GLsizei count,  GLint* v) with gil:
-    print("GL glUniform1iv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform1iv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform1iv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform2f (GLint location, GLfloat x, GLfloat y) with gil:
-    print("GL glUniform2f( location = ", location, ", x = ", x, ", y = ", y, ", )")
+    printWarn("GL glUniform2f( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", )")
     cgl.glUniform2f ( location, x, y)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform2fv (GLint location, GLsizei count,  GLfloat* v) with gil:
-    print("GL glUniform2fv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform2fv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform2fv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform2i (GLint location, GLint x, GLint y) with gil:
-    print("GL glUniform2i( location = ", location, ", x = ", x, ", y = ", y, ", )")
+    printWarn("GL glUniform2i( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", )")
     cgl.glUniform2i ( location, x, y)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform2iv (GLint location, GLsizei count,  GLint* v) with gil:
-    print("GL glUniform2iv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform2iv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform2iv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform3f (GLint location, GLfloat x, GLfloat y, GLfloat z) with gil:
-    print("GL glUniform3f( location = ", location, ", x = ", x, ", y = ", y, ", z = ", z, ", )")
+    printWarn("GL glUniform3f( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", )")
     cgl.glUniform3f ( location, x, y, z)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform3fv (GLint location, GLsizei count,  GLfloat* v) with gil:
-    print("GL glUniform3fv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform3fv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform3fv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform3i (GLint location, GLint x, GLint y, GLint z) with gil:
-    print("GL glUniform3i( location = ", location, ", x = ", x, ", y = ", y, ", z = ", z, ", )")
+    printWarn("GL glUniform3i( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", )")
     cgl.glUniform3i ( location, x, y, z)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform3iv (GLint location, GLsizei count,  GLint* v) with gil:
-    print("GL glUniform3iv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform3iv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform3iv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform4f (GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w) with gil:
-    print("GL glUniform4f( location = ", location, ", x = ", x, ", y = ", y, ", z = ", z, ", w = ", w, ", )")
+    printWarn("GL glUniform4f( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", w = " + str(w) + ", )")
     cgl.glUniform4f ( location, x, y, z, w)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform4fv (GLint location, GLsizei count,  GLfloat* v) with gil:
-    print("GL glUniform4fv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform4fv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform4fv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform4i (GLint location, GLint x, GLint y, GLint z, GLint w) with gil:
-    print("GL glUniform4i( location = ", location, ", x = ", x, ", y = ", y, ", z = ", z, ", w = ", w, ", )")
+    printWarn("GL glUniform4i( location = " + str(location) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", w = " + str(w) + ", )")
     cgl.glUniform4i ( location, x, y, z, w)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniform4iv (GLint location, GLsizei count,  GLint* v) with gil:
-    print("GL glUniform4iv( location = ", location, ", count = ", count, ", v*=", repr(hex(<long> v)), ", )")
+    printWarn("GL glUniform4iv( location = " + str(location) + ", count = " + str(count) + ", v*=" + str(repr(hex(<long> v))) + ", )")
     cgl.glUniform4iv ( location, count, v)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniformMatrix2fv (GLint location, GLsizei count, GLboolean transpose,  GLfloat* value) with gil:
-    print("GL glUniformMatrix2fv( location = ", location, ", count = ", count, ", transpose = ", transpose, ", value*=", repr(hex(<long> value)), ", )")
+    printWarn("GL glUniformMatrix2fv( location = " + str(location) + ", count = " + str(count) + ", transpose = " + str(transpose) + ", value*=" + str(repr(hex(<long> value))) + ", )")
     cgl.glUniformMatrix2fv ( location, count, transpose, value)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniformMatrix3fv (GLint location, GLsizei count, GLboolean transpose,  GLfloat* value) with gil:
-    print("GL glUniformMatrix3fv( location = ", location, ", count = ", count, ", transpose = ", transpose, ", value*=", repr(hex(<long> value)), ", )")
+    printWarn("GL glUniformMatrix3fv( location = " + str(location) + ", count = " + str(count) + ", transpose = " + str(transpose) + ", value*=" + str(repr(hex(<long> value))) + ", )")
     cgl.glUniformMatrix3fv ( location, count, transpose, value)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose,  GLfloat* value) with gil:
-    print("GL glUniformMatrix4fv( location = ", location, ", count = ", count, ", transpose = ", transpose, ", value*=", repr(hex(<long> value)), ", )")
+    printWarn("GL glUniformMatrix4fv( location = " + str(location) + ", count = " + str(count) + ", transpose = " + str(transpose) + ", value*=" + str(repr(hex(<long> value))) + ", )")
     cgl.glUniformMatrix4fv ( location, count, transpose, value)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glUseProgram (GLuint program) with gil:
-    print("GL glUseProgram( program = ", program, ", )")
+    printWarn("GL glUseProgram( program = " + str(program) + ", )")
     cgl.glUseProgram ( program)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+
+    print_error()
+
+cdef void  glBindVertexArray (GLuint program) with gil:
+    printWarn("GL glBindVertexArray( vio = " + str(program) + ", )")
+    cgl.glBindVertexArray ( program)
+
+    print("After glBindVertexArray( program = " + str(program) + ", )")
+
+    print_error()
+
+    
 cdef void  glValidateProgram (GLuint program) with gil:
-    print("GL glValidateProgram( program = ", program, ", )")
+    printWarn("GL glValidateProgram( program = " + str(program) + ", )")
     cgl.glValidateProgram ( program)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib1f (GLuint indx, GLfloat x) with gil:
-    print("GL glVertexAttrib1f( indx = ", indx, ", x = ", x, ", )")
+    printWarn("GL glVertexAttrib1f( indx = " + str(indx) + ", x = " + str(x) + ", )")
     cgl.glVertexAttrib1f ( indx, x)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib1fv (GLuint indx,  GLfloat* values) with gil:
-    print("GL glVertexAttrib1fv( indx = ", indx, ", values*=", repr(hex(<long> values)), ", )")
+    printWarn("GL glVertexAttrib1fv( indx = " + str(indx) + ", values*=" + str(repr(hex(<long> values))) + ", )")
     cgl.glVertexAttrib1fv ( indx, values)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib2f (GLuint indx, GLfloat x, GLfloat y) with gil:
-    print("GL glVertexAttrib2f( indx = ", indx, ", x = ", x, ", y = ", y, ", )")
+    printWarn("GL glVertexAttrib2f( indx = " + str(indx) + ", x = " + str(x) + ", y = " + str(y) + ", )")
     cgl.glVertexAttrib2f ( indx, x, y)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib2fv (GLuint indx,  GLfloat* values) with gil:
-    print("GL glVertexAttrib2fv( indx = ", indx, ", values*=", repr(hex(<long> values)), ", )")
+    printWarn("GL glVertexAttrib2fv( indx = " + str(indx) + ", values*=" + str(repr(hex(<long> values))) + ", )")
     cgl.glVertexAttrib2fv ( indx, values)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib3f (GLuint indx, GLfloat x, GLfloat y, GLfloat z) with gil:
-    print("GL glVertexAttrib3f( indx = ", indx, ", x = ", x, ", y = ", y, ", z = ", z, ", )")
+    printWarn("GL glVertexAttrib3f( indx = " + str(indx) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", )")
     cgl.glVertexAttrib3f ( indx, x, y, z)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib3fv (GLuint indx,  GLfloat* values) with gil:
-    print("GL glVertexAttrib3fv( indx = ", indx, ", values*=", repr(hex(<long> values)), ", )")
+    printWarn("GL glVertexAttrib3fv( indx = " + str(indx) + ", values*=" + str(repr(hex(<long> values))) + ", )")
     cgl.glVertexAttrib3fv ( indx, values)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib4f (GLuint indx, GLfloat x, GLfloat y, GLfloat z, GLfloat w) with gil:
-    print("GL glVertexAttrib4f( indx = ", indx, ", x = ", x, ", y = ", y, ", z = ", z, ", w = ", w, ", )")
+    printWarn("GL glVertexAttrib4f( indx = " + str(indx) + ", x = " + str(x) + ", y = " + str(y) + ", z = " + str(z) + ", w = " + str(w) + ", )")
     cgl.glVertexAttrib4f ( indx, x, y, z, w)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttrib4fv (GLuint indx,  GLfloat* values) with gil:
-    print("GL glVertexAttrib4fv( indx = ", indx, ", values*=", repr(hex(<long> values)), ", )")
+    printWarn("GL glVertexAttrib4fv( indx = " + str(indx) + ", values*=" + str(repr(hex(<long> values))) + ", )")
     cgl.glVertexAttrib4fv ( indx, values)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glVertexAttribPointer (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride,  GLvoid* ptr) with gil:
-    print("GL glVertexAttribPointer( indx = ", indx, ", size = ", size, ", type = ", type, ", normalized = ", normalized, ", stride = ", stride, ", ptr*=", repr(hex(<long> ptr)), ", )")
+    printWarn("GL glVertexAttribPointer( indx = " + str(indx) + ", size = " + str(size) + ", type = " + str(type) + ", normalized = " + str(normalized) + ", stride = " + str(stride) + ", ptr*=" + str(repr(hex(<long> ptr))) + ", )")
     cgl.glVertexAttribPointer ( indx, size, type, normalized, stride, ptr)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    
 cdef void  glViewport (GLint x, GLint y, GLsizei width, GLsizei height) with gil:
-    print("GL glViewport( x = ", x, ", y = ", y, ", width = ", width, ", height = ", height, ", )")
+    printWarn("GL glViewport( x = " + str(x) + ", y = " + str(y) + ", width = " + str(width) + ", height = " + str(height) + ", )")
     cgl.glViewport ( x, y, width, height)
-    ret = cgl.glGetError()
-    if ret: print("OpenGL Error %d / %x" % (ret, ret))
+    print_error()
+    

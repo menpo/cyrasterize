@@ -51,15 +51,6 @@ typedef struct {
 } glr_light;
 
 
-//struct glr_attribute {
-//    char* name;
-//    void* data;
-//    glr_type type;
-//    glr_attribute* next;
-//};
-
-
-
 
 typedef struct {
 	glr_textured_mesh mesh;
@@ -192,12 +183,6 @@ void glr_register_draw_framebuffers(GLuint fbo, size_t n_attachments,
 
 
 void glr_set_global_settings(void);
-
-
-void glr_render_scene(glr_scene* scene);
-
-
-void glr_render_to_framebuffer(glr_scene* scene);
 
 
 void glr_get_framebuffer(glr_texture* texture);

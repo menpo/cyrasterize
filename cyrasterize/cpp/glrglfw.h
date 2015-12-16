@@ -24,4 +24,3 @@ glr_glfw_context glr_build_glfw_context_onscreen(int width, int height);
 glr_STATUS glr_glfw_init(glr_glfw_context* context);
 
 void glr_glfw_terminate(glr_glfw_context* context);
-

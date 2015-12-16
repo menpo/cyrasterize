@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glrglfw.h"
-#include "glrasterizer.h"
+#include "glr.h"
 
 glr_glfw_context glr_build_glfw_context_offscreen(int width, int height){
 	glr_glfw_context context;

@@ -1,4 +1,6 @@
 import numpy as np
+# from .glrasterizer import FragmentShader, VertexShader
+
 
 
 class CyRasterizerBase(object):

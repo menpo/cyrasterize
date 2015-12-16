@@ -3,3 +3,5 @@ include AUTHORS.txt
 include buildhelpers.py
 include versioneer.py
 include cyrasterize/_version.py
+include cyrasterize/shaders
+

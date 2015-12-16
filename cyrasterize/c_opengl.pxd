@@ -368,6 +368,8 @@ cdef extern from "GL/glew.h":
     int GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE
 
     int GL_COLOR_ATTACHMENT0
+    int GL_COLOR_ATTACHMENT1
+
     int GL_DEPTH_ATTACHMENT
     int GL_STENCIL_ATTACHMENT
 
@@ -447,6 +449,7 @@ cdef extern from "GL/glew.h":
     cdef void   glGetBooleanv(GLenum pname, GLboolean* params) nogil
     cdef void   glGetBufferParameteriv(GLenum target, GLenum pname, GLint* params) nogil
     cdef GLenum glGetError() nogil
+    cdef void   glBindVertexArray(GLuint program) nogil
     cdef void   glGetFloatv(GLenum pname, GLfloat* params) nogil
     cdef void   glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GLenum pname, GLint* params) nogil
     cdef void   glGetIntegerv(GLenum pname, GLint* params) nogil
