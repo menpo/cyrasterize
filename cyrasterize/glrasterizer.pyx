@@ -28,7 +28,6 @@ cdef class ShaderSource:
     def __init__(self, str py_source, GLenum shader_type):
 
         self.shader_type = shader_type
-        print('Init ShaderSource(...)')
 
         cdef GLint success = 0
         cdef GLuint error
@@ -43,7 +42,6 @@ cdef class ShaderSource:
         uid = glCreateShader(self.shader_type)
         glShaderSource(uid, 1, <GLchar**> &source, NULL)
         glCompileShader(uid)
-
 
         # ensure compilation is ok
         glGetShaderiv(uid, GL_COMPILE_STATUS, &success)
