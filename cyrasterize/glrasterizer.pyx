@@ -16,9 +16,13 @@ SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file
 DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
 DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rb').read()
 
+# distutils: language = c++
+
+from libcpp cimport bool
+from c_opengl cimport *
+from c_opengl_debug cimport *
 
 cdef class ShaderSource:
-
     # Most of this code comes from kivy
     # https://github.com/kivy/kivy/blob/master/kivy/graphics/shader.pyx
 
@@ -26,7 +30,6 @@ cdef class ShaderSource:
     cpdef GLenum shader_type
 
     def __init__(self, str py_source, GLenum shader_type):
-
         self.shader_type = shader_type
 
         cdef GLint success = 0

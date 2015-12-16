@@ -12,15 +12,13 @@ import versioneer
 # always recreate the compiled in C shader files immediately
 rebuild_c_shaders()
 
-pyx_sources = [
-    path.join(".", "cyrasterize", "glrasterizer.pyx"),
-    path.join(".", "cyrasterize", "c_opengl_debug.pyx")
+# Declare the modules to by cythonised
+sources = [
+    "cyrasterize.glrasterizer",
+    "cyrasterize.c_opengl_debug",
+    "cyrasterize.shader"
 ]
 
-cythonized_sources = [
-    path.join(".", "cyrasterize", "glrasterizer.cpp"),
-    path.join(".", "cyrasterize", "c_opengl_debug.cpp")
-]
 
 # files to compile from glrasterizer
 glrasterizer_sources = ["glrasterizer.cpp", "glr.cpp", "glrglfw.cpp"]
@@ -70,23 +68,22 @@ elif sys.platform == 'darwin':
     #                             '-framework CoreVideo']
 
 
+def module_to_path(module):
+    return path.join('.', *module.split('.'))
 
 # cythonize the .pyx file returning a suitable Extension
 def ext_from_source():
     from Cython.Build import cythonize
-    return cythonize([
-        Extension('cyrasterize.glrasterizer', [pyx_sources[0]] + external_sources, **ext_kwargs),
-        Extension('cyrasterize.c_opengl_debug', [pyx_sources[1]], **ext_kwargs)
-    ])
+    return cythonize(
+        [Extension(x, [module_to_path(x) + '.pyx'] + external_sources, **ext_kwargs) for x in sources]
+    )
 
 
 # build an extension directly from the cythonized source - no need for Cython
 def ext_from_cythonized():
-    return [
-        Extension('cyrasterize.glrasterizer', [cythonized_sources[0]] + external_sources, **ext_kwargs),
-        Extension('cyrasterize.c_opengl_debug', [cythonized_sources[1]], **ext_kwargs)
-    ]
-
+    return cythonize(
+        [Extension(x, [module_to_path(x) + '.cpp'] + external_sources, **ext_kwargs) for x in sources]
+    )
 
 try:
     # If Cython is available, build the extension module from the Cython source
@@ -95,7 +92,7 @@ except ImportError:
     # No Cython! Let's check if the cythonized file is already present
     # (NB: file is not in git but needs to be included in distributions)
     from os.path import exists
-    if not all([exists(f) for f in cythonized_sources]):
+    if not all([exists(f) for f in [module_to_path(x + '.cpp') for x in sources]]):
         raise ImportError("Installing from source requires Cython")
     # good, we have the file. Just build a good old-fashioned extension
     extensions = ext_from_cythonized()
