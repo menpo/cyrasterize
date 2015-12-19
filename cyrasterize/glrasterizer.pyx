@@ -183,10 +183,11 @@ cdef class GLScene:
         status = glr_glfw_init(&self.context)
         cdef bool success = status == GLR_SUCCESS
 
-        self.program = glCreateProgram()
 
         if not success:
             raise RuntimeError('glr_glfw_init failed with error {}'.format(status))
+
+        self.program = glCreateProgram()
 
         self.success = success
 
@@ -275,7 +276,9 @@ cdef class GLScene:
         glr_init_framebuffer(&self.fbo, &self.fb_f3v_target, GL_COLOR_ATTACHMENT1)
 
         cdef GLenum buffers[2]
-        buffers = (GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1)
+
+        for i in range(2):
+            buffers[i] = (GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1)[i]
 
         glr_register_draw_framebuffers(self.fbo, 2, buffers)
 
