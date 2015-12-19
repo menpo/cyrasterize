@@ -2,6 +2,8 @@ from libcpp cimport bool
 from c_opengl cimport *
 from c_opengl_debug cimport *
 
+__all__ = ['VertexShader', 'FragmentShader']
+
 cdef class ShaderSource:
     # Most of this code comes from kivy
     # https://github.com/kivy/kivy/blob/master/kivy/graphics/shader.pyx

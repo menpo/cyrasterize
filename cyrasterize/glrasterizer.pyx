@@ -5,6 +5,7 @@ from libcpp cimport bool
 from libc.stdio cimport printf
 from c_opengl cimport *
 from c_opengl_debug cimport *
+from shader import VertexShader, FragmentShader
 
 cimport numpy as np
 import numpy as np
@@ -12,7 +13,6 @@ import numpy as np
 import os.path
 import sys
 
-from shader import VertexShader, FragmentShader
 
 SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file__), 'shaders', 'texture_shader')
 DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
@@ -76,7 +76,6 @@ cdef class GLUniform:
     def __hash__(self):
         return self.location
 
-
     def get_type_name(self):
         dtype = self.value.dtype
         valid_types = [(float, 'f'), (int, 'i')]
@@ -99,6 +98,7 @@ cdef class GLUniform:
         cdef np.ndarray value = self.value
         cdef float* f_array
         cdef int* i_array
+        cdef float[:, :] fmatrix
 
         fun_basename = 'glUniform'
         type_name = self.get_type_name()
@@ -143,11 +143,8 @@ cdef class GLUniform:
             if type_name == 'i':
                 raise NotImplementedError()
 
-            f_array = ndarray_vector_to_c_float_array(self.value)
-
-            glUniformMatrix4fv(self.location, 1, GL_TRUE, <float*> f_array)
-
-            free(f_array)
+            fmatrix = self.value
+            glUniformMatrix4fv(self.location, 1, GL_TRUE, &fmatrix[0, 0])
 
     def get_value(self):
         return self.value
@@ -446,7 +443,13 @@ cdef class GLRasterizer(GLScene):
 
         self.attach_shaders((default_vertex_shader, default_fragment_shader))
 
-        # Initialise model_matrix to eye(4), view_matrix, projection_matrix to eye(4)
+        # Initialise camera/projection matrices
+
+        orthog = np.require(np.eye(4), dtype=np.float32, requirements='C')
+
+        self.set_model_matrix(orthog)
+        self.set_view_matrix(orthog)
+        self.set_projection_matrix(orthog)
 
     cpdef get_model_matrix(self):
         return self.get_uniform('modelMatrix')
