@@ -83,3 +83,7 @@ class VertexShader(ShaderSource):
 class FragmentShader(ShaderSource):
     def __init__(self, src):
         super(FragmentShader, self).__init__(src, GL_FRAGMENT_SHADER)
+
+class GeometryShader(ShaderSource):
+    def __init__(self, src):
+        super(FragmentShader, self).__init__(src, GL_GEOMETRY_SHADER)
