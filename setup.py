@@ -6,11 +6,7 @@ import os
 import shutil
 from glob import glob
 from functools import reduce
-from buildhelpers import rebuild_c_shaders
 import versioneer
-
-# always recreate the compiled in C shader files immediately
-rebuild_c_shaders()
 
 # Declare the modules to by cythonised
 sources = [
@@ -21,7 +17,7 @@ sources = [
 
 
 # files to compile from glrasterizer
-glrasterizer_sources = ["glrasterizer.cpp", "glr.cpp", "glrglfw.cpp"]
+glrasterizer_sources = ["glr.cpp", "glrglfw.cpp"]
 external_sources = [path.join(".", "cyrasterize", "cpp", s) for s in
                     glrasterizer_sources]
 

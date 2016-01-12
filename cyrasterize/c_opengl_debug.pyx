@@ -1,5 +1,5 @@
 # distutils: language = c++
-
+import logging as log
 cimport c_opengl as cgl
 
 cdef extern from *:
@@ -13,10 +13,8 @@ class bcolors:
     RED = '\x1b[31m'
     END = '\x1b[0m'
 
-
 def printWarn(string, color=bcolors.YELLOW):
-    print(color + string + bcolors.END)
-
+    log.debug(color + string + bcolors.END)
 
 cdef print_error():
     code = cgl.glGetError()
@@ -24,7 +22,7 @@ cdef print_error():
     cdef bytes pyString = c_char
 
     if code:
-        printWarn(" *** Error *** [{}] {}".format(pyString, code), color=bcolors.RED)
+        log.error(" *** Error *** [{}] {}".format(pyString, code), color=bcolors.RED)
 
 cdef void   glActiveTexture (GLenum texture) with gil:
     printWarn("GL glActiveTexture( texture = " + str(texture) + ", )")
@@ -216,13 +214,7 @@ cdef void   glDepthMask (GLboolean flag) with gil:
     printWarn("GL glDepthMask( flag = " + str(flag) + ", )")
     cgl.glDepthMask ( flag)
     print_error()
-    
-#crash on android platform
-#cdef void   glDepthRangef (GLclampf zNear, GLclampf zFar) with gil:
-#    printWarn("GL glDepthRangef( zNear = " + str(zNear) + ", zFar = " + str(zFar) + ", )")
-#    cgl.glDepthRangef ( zNear, zFar)
-#    ret = glGetError()
-#    if ret: print("ERR %d / %x" % (ret, ret))
+
 cdef void   glDetachShader (GLuint program, GLuint shader) with gil:
     printWarn("GL glDetachShader( program = " + str(program) + ", shader = " + str(shader) + ", )")
     cgl.glDetachShader ( program, shader)
@@ -516,7 +508,7 @@ cdef void  glShaderSource (GLuint shader, GLsizei count,  GLchar** string,  GLin
     printWarn("GL glShaderSource( shader = " + str(shader) + ", count = " + str(count) + ", string**=" + str(repr(hex(<long> string))) + ", length*=" + str(repr(hex(<long> length))) + ", )")
     cgl.glShaderSource ( shader, count, <const_char_ptr*>string, length)
     ret = glGetError()
-    if ret: print("ERR %d / %x" % (ret, ret))
+    if ret: log.error("ERR %d / %x" % (ret, ret))
 cdef void  glStencilFunc (GLenum func, GLint ref, GLuint mask) with gil:
     printWarn("GL glStencilFunc( func = " + str(func) + ", ref = " + str(ref) + ", mask = " + str(mask) + ", )")
     cgl.glStencilFunc ( func, ref, mask)
@@ -682,7 +674,7 @@ cdef void  glBindVertexArray (GLuint program) with gil:
     printWarn("GL glBindVertexArray( vio = " + str(program) + ", )")
     cgl.glBindVertexArray ( program)
 
-    print("After glBindVertexArray( program = " + str(program) + ", )")
+    log.debug("After glBindVertexArray( program = " + str(program) + ", )")
 
     print_error()
 

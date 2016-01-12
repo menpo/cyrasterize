@@ -1,10 +1,44 @@
 import numpy as np
-# from .glrasterizer import FragmentShader, VertexShader
+from functools import partial
+from shader import FragmentShader, GeometryShader, VertexShader
+
+class CyUniformBase(object):
+    r"""
+      A fancy interface to list the uniforms as properties in the
+      rasterizer class.
+
+    Parameters
+    ----------
+
+    opengl : an CyRasterize canvas instance
+
+    attributes : the names of the uniform variables that exist
+        in the shaders
+
+    Notes
+    -----
+    """
+
+    def __init__(self, opengl, attributes):
+        self._opengl = opengl
+
+        for name in attributes:
+            print(name)
+            fset = lambda self, value, name: self._opengl.set_uniform(name, value)
+            fget = lambda self, name: self._opengl.get_uniform(name)
+
+            doc = '''
+                An OpenGL uniform [{}].
+            '''.format(name)
+
+            setattr(CyUniformBase, name, property(
+                fget=partial(fget, name=name),
+                fset=partial(fset, name=name), doc=doc)
+            )
 
 
-
-class CyRasterizerBase(object):
-    r"""Offscreen OpenGL rasterizer of fixed width and height.
+    class CyRasterizerBase(object):
+        r"""Offscreen OpenGL rasterizer of fixed width and height.
 
     Parameters
     ----------
@@ -13,8 +47,7 @@ class CyRasterizerBase(object):
         The width of the rasterize target
 
     height: int
-        The height of hte rasterize target
-
+        The height of the rasterize target
 
     Notes
     -----
@@ -88,6 +121,23 @@ class CyRasterizerBase(object):
     def projection_matrix(self):
         return self._opengl.get_projection_matrix()
 
+
+    def set_shaders(self, geometry=None, vertex=None, fragment=None):
+
+        self._opengl.attach_shaders(
+            [c(x) for x, c in
+                zip(
+                    (geometry, vertex, fragment),
+                    (GeometryShader, VertexShader, FragmentShader)
+                ) if x is not None
+             ]
+        )
+
+        uniforms = self._opengl.get_active_uniforms()
+
+        self.uniforms = CyUniformBase(self._opengl, uniforms)
+
+
     # we don't use setters here as we want to be clear on when we give C a
     # new matrix (e.g. rasterizer.model_matrix[:, 2] = 2 would not be caught
     # by the setter)
@@ -149,24 +199,21 @@ class CyRasterizerBase(object):
             Mask showing what true values the rasterizer wrote to.
 
         """
+
+
+        '''
+            We need to flipud the texture when passing it to OpenGL.
+            OpenGL's coordinate system maps textures down to up where (0,0)
+            is in the bottom left and (1,1) is in the top right.
+
+            When we retrieve back the pixels from the rasterizer we
+            flip them back to our coordinate system.
+        '''
+
         points = np.require(points, dtype=np.float32, requirements='c')
         trilist = np.require(trilist, dtype=np.uint32, requirements='c')
-        texture = np.require(texture, dtype=np.float32, requirements='c')
+        texture = np.require(np.flipud(texture), dtype=np.float32, requirements='c')
         tcoords = np.require(tcoords, dtype=np.float32, requirements='c')
-
-        norm = np.zeros(points.shape, dtype=points.dtype)
-        # Create an indexed view into the vertex array using the array of three indices for triangles
-        tris = points[trilist]
-        # Calculate the normal for all the triangles, by taking the cross product of the vectors v1-v0, and v2-v0 in each triangle
-        n = np.cross(tris[::, 1] - tris[::, 0], tris[::, 2] - tris[::, 0])
-
-        # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
-        # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
-        # the triangles' normal. Multiple triangles would then contribute to every vertex, so we need to normalize again afterwards.
-        # The cool part, we can actually add the normals through an indexed view of our (zeroed) per vertex normal array
-        norm[trilist[:, 0]] += n
-        norm[trilist[:, 1]] += n
-        norm[trilist[:, 2]] += n
 
         if per_vertex_f3v is None:
             per_vertex_f3v = points
@@ -175,7 +222,7 @@ class CyRasterizerBase(object):
                                                            trilist, tcoords,
                                                            texture)
         mask = rgb_fb[..., 3].astype(np.bool)
-        return rgb_fb[..., :3].copy(), f3v_fb, mask
+        return np.flipud(rgb_fb[..., :3]).copy(), np.flipud(f3v_fb), np.flipud(mask)
 
 
 # Maintain a subclass here to allow other subclasses of CyRasterizerBase that
