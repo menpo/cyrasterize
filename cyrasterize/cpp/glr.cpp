@@ -8,7 +8,6 @@
 
 void glr_check_error(void) {
 	GLenum err = glGetError();
-    printf("DO\n");
 
 	if (err != GL_NO_ERROR) {
 		printf("Error. glError: 0x%04X", err);
@@ -337,7 +336,6 @@ void glr_set_global_settings(void) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);  // as we do a flip in the fragment shader!
 	glDepthFunc(GL_LEQUAL);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 }

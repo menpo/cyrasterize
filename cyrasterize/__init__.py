@@ -1,3 +1,4 @@
+import sys
 from cyrasterize.base import CyRasterizer
 from glrasterizer import FragmentShader, VertexShader
 

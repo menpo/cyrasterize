@@ -1,6 +1,9 @@
 from libcpp cimport bool
 from c_opengl cimport *
+import logging as log
+
 from c_opengl_debug cimport *
+import sys
 
 __all__ = ['VertexShader', 'FragmentShader']
 
@@ -40,11 +43,11 @@ cdef class ShaderSource:
             raise RuntimeError('Shader: <%s> failed to compile (gl:%d)' % (
                 str(self), error))
 
-        print('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
+        log.info('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
 
     def __dealloc__(self):
         # if self.shader != -1:
-        print('TODO We have to deallocate shader')
+        log.debug('TODO Maybe we have to deallocate the shader here?')
 
     cpdef bool is_compiled(self):
         return self.uid != -1
