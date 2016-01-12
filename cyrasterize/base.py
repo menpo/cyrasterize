@@ -153,6 +153,21 @@ class CyRasterizerBase(object):
         trilist = np.require(trilist, dtype=np.uint32, requirements='c')
         texture = np.require(texture, dtype=np.float32, requirements='c')
         tcoords = np.require(tcoords, dtype=np.float32, requirements='c')
+
+        norm = np.zeros(points.shape, dtype=points.dtype)
+        # Create an indexed view into the vertex array using the array of three indices for triangles
+        tris = points[trilist]
+        # Calculate the normal for all the triangles, by taking the cross product of the vectors v1-v0, and v2-v0 in each triangle
+        n = np.cross(tris[::, 1] - tris[::, 0], tris[::, 2] - tris[::, 0])
+
+        # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
+        # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
+        # the triangles' normal. Multiple triangles would then contribute to every vertex, so we need to normalize again afterwards.
+        # The cool part, we can actually add the normals through an indexed view of our (zeroed) per vertex normal array
+        norm[trilist[:, 0]] += n
+        norm[trilist[:, 1]] += n
+        norm[trilist[:, 2]] += n
+
         if per_vertex_f3v is None:
             per_vertex_f3v = points
         interp = np.require(per_vertex_f3v, dtype=np.float32, requirements='c')

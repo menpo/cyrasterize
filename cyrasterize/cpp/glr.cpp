@@ -134,11 +134,12 @@ glr_vectorset glr_build_unsigned_3v(unsigned* vectors, size_t n_vectors) {
 	return vector_tmp;
 }
 
-glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_data,
+glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, double* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_double_4v(vertices, n_points);
+	mesh.normals = glr_build_double_4v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -146,11 +147,12 @@ glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_d
 	return mesh;
 }
 
-glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_float_3v(vertices, n_points);
+	mesh.normals = glr_build_float_3v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -158,11 +160,12 @@ glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_dat
 	return mesh;
 }
 
-glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		float* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_float_3v(vertices, n_points);
+	mesh.normals = glr_build_float_3v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -301,6 +304,7 @@ void glr_init_vao(glr_textured_mesh *mesh) {
     // 2. Make all our intialization code run. The VAO will track buffer
     // attribute bindings for us.
 	glr_init_and_bind_array_buffer(&mesh->vertices);
+	glr_init_and_bind_array_buffer(&mesh->normals);
 	glr_init_and_bind_array_buffer(&mesh->f3v_data);
 	glr_init_and_bind_array_buffer(&mesh->tcoords);
 	glr_init_and_bind_element_buffer(&mesh->trilist);
@@ -360,6 +364,7 @@ void glr_destroy_vbos_on_trianglar_mesh(glr_textured_mesh* mesh) {
 	glBindVertexArray(0);
     // delete our buffers
 	glDeleteBuffers(1, &(mesh->vertices.vbo));
+	glDeleteBuffers(1, &(mesh->normals.vbo));
 	glDeleteBuffers(1, &(mesh->f3v_data.vbo));
 	glDeleteBuffers(1, &(mesh->trilist.vbo));
 	glDeleteBuffers(1, &(mesh->tcoords.vbo));

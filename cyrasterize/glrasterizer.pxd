@@ -52,6 +52,7 @@ cdef extern from "./cpp/glr.h":
 
     ctypedef struct glr_textured_mesh:
         glr_vectorset vertices
+        glr_vectorset normals
         glr_vectorset f3v_data
         glr_vectorset tcoords
         glr_vectorset trilist
@@ -77,13 +78,13 @@ cdef extern from "./cpp/glr.h":
         glr_texture fb_f3v_target
 
     glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(
-            double* points, float* f3v_data,
+            double* points, double* normals, float* f3v_data,
             size_t n_points, unsigned* trilist,
             size_t n_tris, float* tcoords, uint8_t* texture,
             size_t texture_width, size_t texture_height)
 
     glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(
-            float* points, float* f3v_data,
+            float* points, float* normals, float* f3v_data,
             size_t n_points, unsigned* trilist,
             size_t n_tris, float* tcoords, float* texture,
             size_t texture_width, size_t texture_height)

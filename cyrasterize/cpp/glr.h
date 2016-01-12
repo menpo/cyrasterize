@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
 	glr_vectorset vertices; // float vec4 (homogeneous vertex data)
+	glr_vectorset normals;  // float vec4 (homogeneous vertex data)
 	glr_vectorset f3v_data; // float vec3 - arbitray per-vertex data. Written out to fb_f3v_target
 	glr_vectorset tcoords;
 	glr_vectorset trilist;
@@ -133,15 +134,15 @@ glr_texture glr_build_float_rgba_texture(float* texture, size_t w, size_t h);
  * - an 8-bit RGBA texture @ .texture (unit need to be set)
  * - a set of float texture coords @ .tcoords (attribute_pointer as points)
  */
-glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_data,
+glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, double* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height);
 
-glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height);
 
-glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		float* texture, size_t tex_width, size_t tex_height);
 
