@@ -135,8 +135,7 @@ class CyRasterizerBase(object):
         )
 
 
-
-        self.uniforms = CyUniformBase(self._opengl, uniforms)
+        self.uniforms = CyUniformBase(self._opengl)
 
 
     # we don't use setters here as we want to be clear on when we give C a
