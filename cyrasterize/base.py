@@ -12,18 +12,17 @@ class CyUniformBase(object):
 
     opengl : an CyRasterize canvas instance
 
-    attributes : the names of the uniform variables that exist
-        in the shaders
-
     Notes
     -----
     """
 
-    def __init__(self, opengl, attributes):
+
+    def __init__(self, opengl):
         self._opengl = opengl
 
-        for name in attributes:
-            print(name)
+        uniforms = opengl.get_active_uniforms()
+
+        for name in uniforms:
             fset = lambda self, value, name: self._opengl.set_uniform(name, value)
             fget = lambda self, name: self._opengl.get_uniform(name)
 
@@ -37,8 +36,8 @@ class CyUniformBase(object):
             )
 
 
-    class CyRasterizerBase(object):
-        r"""Offscreen OpenGL rasterizer of fixed width and height.
+class CyRasterizerBase(object):
+    r"""Offscreen OpenGL rasterizer of fixed width and height.
 
     Parameters
     ----------
@@ -101,6 +100,8 @@ class CyUniformBase(object):
         if projection_matrix is not None:
             self.set_projection_matrix(projection_matrix)
 
+        self.uniforms = CyUniformBase(self._opengl)
+
     @property
     def width(self):
         return self._opengl.get_width()
@@ -133,7 +134,7 @@ class CyUniformBase(object):
              ]
         )
 
-        uniforms = self._opengl.get_active_uniforms()
+
 
         self.uniforms = CyUniformBase(self._opengl, uniforms)
 

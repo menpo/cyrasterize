@@ -10,9 +10,8 @@ smooth in vec3 normalInterp;
 smooth in vec3 FragPos;
 
 uniform vec3 lightPos;
-uniform vec3 opacity;
 
-const float shininess = 4.0;
+const float shininess = 16.0;
 
 layout(location = 0) out vec4 outputColor;
 layout(location = 1) out vec3 outputLinearMapping;
@@ -33,8 +32,8 @@ void main() {
 
    float spec = pow(max(dot(halfwayDir, normal), 0.0), shininess);
 
-   vec3 specular = vec3(0.5) * spec; // assuming bright white light color
-   outputColor = min(vec4(opacity.x * ambient + opacity.y * diffuse + opacity.z * specular, 1.0f), 1);
+   vec3 specular = vec3(0.3) * spec; // assuming bright white light color
+   outputColor = min(vec4(ambient + diffuse + specular, 1.0f), 1);
 
    outputLinearMapping = linearMappingCoord;
 }
