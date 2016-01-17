@@ -1,9 +1,8 @@
 from libcpp cimport bool
-from c_opengl cimport *
+from .c_opengl cimport *
+from .c_opengl_debug cimport *
 import logging as log
 
-from c_opengl_debug cimport *
-import sys
 
 __all__ = ['VertexShader', 'FragmentShader']
 
