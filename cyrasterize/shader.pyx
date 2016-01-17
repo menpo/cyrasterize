@@ -8,7 +8,10 @@ import sys
 __all__ = ['VertexShader', 'FragmentShader']
 
 cdef class ShaderSource:
-    # Most of this code comes from kivy
+    # Influenced by Kivy. If something goes wrong here it might worth
+    # to have a look at Kivy's source code. I took some ideas from them
+    # but reimplemented everything from scratch.
+    #
     # https://github.com/kivy/kivy/blob/master/kivy/graphics/shader.pyx
 
     cpdef GLenum uid
