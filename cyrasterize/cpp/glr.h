@@ -2,7 +2,6 @@
 #include "glrglfw.h"
 #include "stdint.h"
 #include <iostream>
-#include <python.h>
 
 typedef struct {
 	GLint internal_format;
