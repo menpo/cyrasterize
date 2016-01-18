@@ -1,6 +1,7 @@
 import numpy as np
 from functools import partial
-from shader import FragmentShader, GeometryShader, VertexShader
+from .shader import FragmentShader, GeometryShader, VertexShader
+
 
 class CyUniformBase(object):
     r"""

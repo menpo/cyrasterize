@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
 from os import path
 import sys
 import os
@@ -7,6 +6,7 @@ import shutil
 from glob import glob
 from functools import reduce
 import versioneer
+from Cython.Build import cythonize
 
 # Declare the modules to by cythonised
 sources = [
@@ -67,73 +67,17 @@ elif sys.platform == 'darwin':
 def module_to_path(module):
     return path.join('.', *module.split('.'))
 
+
 # cythonize the .pyx file returning a suitable Extension
-def ext_from_source():
-    from Cython.Build import cythonize
+def cython_exts():
     return cythonize(
         [Extension(x, [module_to_path(x) + '.pyx'] + external_sources, **ext_kwargs) for x in sources]
     )
 
 
-# build an extension directly from the cythonized source - no need for Cython
-def ext_from_cythonized():
-    return cythonize(
-        [Extension(x, [module_to_path(x) + '.cpp'] + external_sources, **ext_kwargs) for x in sources]
-    )
-
-try:
-    # If Cython is available, build the extension module from the Cython source
-    extensions = ext_from_source()
-except ImportError:
-    # No Cython! Let's check if the cythonized file is already present
-    # (NB: file is not in git but needs to be included in distributions)
-    from os.path import exists
-    if not all([exists(f) for f in [module_to_path(x + '.cpp') for x in sources]]):
-        raise ImportError("Installing from source requires Cython")
-    # good, we have the file. Just build a good old-fashioned extension
-    extensions = ext_from_cythonized()
-
-# either way, by now, extensions is correctly set.
-
-# get the versioneer cmdclass
-cmdclass = versioneer.get_cmdclass()
-_sdist = cmdclass['sdist']
-
-# Subclass versioneer sdist to ensure Cython is run when a new distribution is
-# built.
-class sdist(_sdist):
-
-    def run(self):
-        # Make sure the compiled Cython files in the distribution are
-        # up-to-date
-        ext_from_source()
-        _sdist.run(self)
-
-# set the sdist back (cython -> versioneer -> setuptools)
-cmdclass['sdist'] = sdist
-
-
-# http://stackoverflow.com/a/21621689/2691632
-# In the case where the user did not have NumPy, build_ext will be run and
-# numpy will not yet be available. This class delays the use of NumPy until
-# after installation of the setup_requires dependencies and ensures that NumPy
-# thinks it is fully installed to allow us to proceed.
-class build_ext(_build_ext):
-
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process
-        __builtins__.__NUMPY_SETUP__ = False
-        print('build_ext: including numpy files')
-        import numpy
-        self.include_dirs.append(numpy.get_include())
-
-cmdclass['build_ext'] = build_ext
-
-
 setup(name='cyrasterize',
       version=versioneer.get_version(),
-      cmdclass=cmdclass,
+      cmdclass=versioneer.get_cmdclass(),
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
@@ -151,7 +95,7 @@ setup(name='cyrasterize',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.4'
       ],
-      ext_modules=extensions,
+      ext_modules=cython_exts(),
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
       setup_requires=['numpy>=1.10'],
