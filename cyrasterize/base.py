@@ -124,7 +124,7 @@ class CyRasterizerBase(object):
         return self._opengl.get_projection_matrix()
 
 
-    def set_shaders(self, geometry=None, vertex=None, fragment=None):
+    def set_shaders(self, geometry=None, vertex=None, fragment=None, use_last_uniforms=True):
 
         self._opengl.attach_shaders(
             [c(x) for x, c in
@@ -135,9 +135,16 @@ class CyRasterizerBase(object):
              ]
         )
 
-
         self.uniforms = CyUniformBase(self._opengl)
 
+        if use_last_uniforms:
+            for name in self._opengl.get_active_uniforms():
+                value = self._opengl.get_uniform(name)
+
+                if value is not None:
+                    self._opengl.set_uniform(name, value)
+        else:
+            self._opengl.reset_view()
 
     # we don't use setters here as we want to be clear on when we give C a
     # new matrix (e.g. rasterizer.model_matrix[:, 2] = 2 would not be caught

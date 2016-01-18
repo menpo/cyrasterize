@@ -340,7 +340,6 @@ cdef class GLScene:
         glDeleteTextures(1, &self.mesh.texture.id)
 
 
-
     def get_active_uniforms(self):
         cdef int total = -1;
         glGetProgramiv(self.program, GL_ACTIVE_UNIFORMS, &total)
@@ -426,7 +425,15 @@ cdef class GLScene:
     def successfully_initialized(self):
         return self.success
 
+    def reset_view(self):
+        orthogonal = np.require(np.eye(4), dtype=np.float32, requirements='C')
+
+        self.set_model_matrix(orthogonal)
+        self.set_view_matrix(orthogonal)
+        self.set_projection_matrix(orthogonal)
+
 cdef class GLRasterizer(GLScene):
+
     def __init__(self, int width, int height):
         default_vertex_shader = VertexShader(DEFAULT_VERTEX_SHADER_SRC)
         default_fragment_shader = FragmentShader(DEFAULT_FRAGMENT_SHADER_SRC)
@@ -434,12 +441,7 @@ cdef class GLRasterizer(GLScene):
         self.attach_shaders((default_vertex_shader, default_fragment_shader))
 
         # Initialise camera/projection matrices
-
-        orthogonal = np.require(np.eye(4), dtype=np.float32, requirements='C')
-
-        self.set_model_matrix(orthogonal)
-        self.set_view_matrix(orthogonal)
-        self.set_projection_matrix(orthogonal)
+        self.reset_view()
 
     cpdef get_model_matrix(self):
         return self.get_uniform('modelMatrix')
