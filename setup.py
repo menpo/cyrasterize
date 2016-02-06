@@ -1,12 +1,13 @@
-from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
+from functools import reduce
+from glob import glob
 from os import path
-import sys
+from setuptools import setup, find_packages, Extension
+import numpy as np
 import os
 import shutil
-from glob import glob
-from functools import reduce
+import sys
 import versioneer
-from Cython.Build import cythonize
 
 # Declare the modules to by cythonised
 sources = [
@@ -56,8 +57,11 @@ if sys.platform.startswith('win'):
     package_data_globs.append('*.dll')
 elif sys.platform.startswith('linux'):
     ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
+    ext_kwargs['include_dirs'] = [np.get_include()]
+
 elif sys.platform == 'darwin':
     ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
+    ext_kwargs['include_dirs'] = [np.get_include()]
     # TODO why does it compile without these on OS X?!
     #c_ext.extra_compile_args += ['-framework OpenGL',
     #                             '-framework Cocoa', '-framework IOKit',
@@ -71,8 +75,9 @@ def module_to_path(module):
 # cythonize the .pyx file returning a suitable Extension
 def cython_exts():
     return cythonize(
-        [Extension(x, [module_to_path(x) + '.pyx'] + external_sources, **ext_kwargs) for x in sources]
-    )
+        [Extension(x, [module_to_path(x) + '.pyx'] + external_sources, **ext_kwargs) 
+        for x in sources
+    ])
 
 
 setup(name='cyrasterize',
@@ -99,5 +104,6 @@ setup(name='cyrasterize',
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
       setup_requires=['numpy>=1.10'],
-      install_requires=['numpy>=1.10']
+      install_requires=['numpy>=1.10'],
+      include_dirs=[np.get_include()]
       )
