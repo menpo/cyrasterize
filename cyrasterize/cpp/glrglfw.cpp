@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glrglfw.h"
-#include "glrasterizer.h"
+#include "glr.h"
 
 glr_glfw_context glr_build_glfw_context_offscreen(int width, int height){
 	glr_glfw_context context;
@@ -46,7 +46,7 @@ glr_STATUS _glr_glew_init(void) {
     // http://www.opengl.org/wiki/OpenGL_Loading_Library#GLEW
     GLenum err = glGetError();
     if (err == GL_INVALID_ENUM)
-        fprintf(stdout,"swallowing GL_INVALID_ENUM error\n");
+        fprintf(stderr,"swallowing GL_INVALID_ENUM error\n");
     return GLR_SUCCESS;
 }
 

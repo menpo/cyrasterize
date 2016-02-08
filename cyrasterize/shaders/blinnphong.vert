@@ -12,11 +12,16 @@ layout(location = 3) in vec3 normal;
 
 smooth out vec2 tcoord;
 smooth out vec3 linearMappingCoord;
+smooth out vec3 normalInterp;
+smooth out vec3 FragPos;
 
 void main() {
     // position is what we would normally pass straight through
-    gl_Position = projectionMatrix * viewMatrix * modelMatrix * point;
+    vec4 position = projectionMatrix * viewMatrix * modelMatrix * point;
+    gl_Position = position;
     tcoord = tcoordIn;
+
+    FragPos = (viewMatrix * modelMatrix * point).xyz;
+    normalInterp = normal;
     linearMappingCoord = linearMappingCoordIn;
 }
-

@@ -7,7 +7,7 @@ requirements:
     - python
     - setuptools
     - numpy 1.10.*
-    - cython 0.21.*
+    - cython 0.23.*
     - glew 1.11.0
     - glfw3 3.0.4
     - msinttypes r26 [win]

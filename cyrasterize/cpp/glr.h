@@ -31,6 +31,7 @@ typedef struct {
 
 typedef struct {
 	glr_vectorset vertices; // float vec4 (homogeneous vertex data)
+	glr_vectorset normals;  // float vec4 (homogeneous vertex data)
 	glr_vectorset f3v_data; // float vec3 - arbitray per-vertex data. Written out to fb_f3v_target
 	glr_vectorset tcoords;
 	glr_vectorset trilist;
@@ -50,6 +51,7 @@ typedef struct {
 } glr_light;
 
 
+
 typedef struct {
 	glr_textured_mesh mesh;
 	glr_camera camera;
@@ -62,8 +64,8 @@ typedef struct {
 	glr_texture fb_rgb_target;
     // 3 channel float FB target (writes out f3v_data)
     glr_texture fb_f3v_target;
+//    glr_attribute* attributes;
 } glr_scene;
-
 
 
 /**
@@ -131,15 +133,15 @@ glr_texture glr_build_float_rgba_texture(float* texture, size_t w, size_t h);
  * - an 8-bit RGBA texture @ .texture (unit need to be set)
  * - a set of float texture coords @ .tcoords (attribute_pointer as points)
  */
-glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_data,
+glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, double* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height);
 
-glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height);
 
-glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		float* texture, size_t tex_width, size_t tex_height);
 
@@ -153,7 +155,6 @@ glr_camera glr_build_othographic_camera_at_origin(void);
  * Return a new glr_camera with a projection_matrix and model matrix
  */
 glr_camera glr_build_camera(float* projectionMatrix, float* modelMatrix);
-
 
 /*
  * Return a scene struct with a default camera and no mesh
@@ -181,12 +182,6 @@ void glr_register_draw_framebuffers(GLuint fbo, size_t n_attachments,
 
 
 void glr_set_global_settings(void);
-
-
-void glr_render_scene(glr_scene* scene);
-
-
-void glr_render_to_framebuffer(glr_scene* scene);
 
 
 void glr_get_framebuffer(glr_texture* texture);

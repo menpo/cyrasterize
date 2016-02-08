@@ -2,6 +2,8 @@
 #extension GL_ARB_explicit_attrib_location : require
 
 uniform sampler2D textureImage;
+uniform mat4 viewMatrix;
+
 smooth in vec2 tcoord;
 smooth in vec3 linearMappingCoord;
 

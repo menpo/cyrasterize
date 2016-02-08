@@ -1,4 +1,40 @@
 import numpy as np
+from functools import partial
+from .shader import FragmentShader, GeometryShader, VertexShader
+
+
+class CyUniformBase(object):
+    r"""
+      A fancy interface to list the uniforms as properties in the
+      rasterizer class.
+
+    Parameters
+    ----------
+
+    opengl : an CyRasterize canvas instance
+
+    Notes
+    -----
+    """
+
+
+    def __init__(self, opengl):
+        self._opengl = opengl
+
+        uniforms = opengl.get_active_uniforms()
+
+        for name in uniforms:
+            fset = lambda self, value, name: self._opengl.set_uniform(name, value)
+            fget = lambda self, name: self._opengl.get_uniform(name)
+
+            doc = '''
+                An OpenGL uniform [{}].
+            '''.format(name)
+
+            setattr(CyUniformBase, name, property(
+                fget=partial(fget, name=name),
+                fset=partial(fset, name=name), doc=doc)
+            )
 
 
 class CyRasterizerBase(object):
@@ -11,8 +47,7 @@ class CyRasterizerBase(object):
         The width of the rasterize target
 
     height: int
-        The height of hte rasterize target
-
+        The height of the rasterize target
 
     Notes
     -----
@@ -66,6 +101,8 @@ class CyRasterizerBase(object):
         if projection_matrix is not None:
             self.set_projection_matrix(projection_matrix)
 
+        self.uniforms = CyUniformBase(self._opengl)
+
     @property
     def width(self):
         return self._opengl.get_width()
@@ -85,6 +122,29 @@ class CyRasterizerBase(object):
     @property
     def projection_matrix(self):
         return self._opengl.get_projection_matrix()
+
+
+    def set_shaders(self, geometry=None, vertex=None, fragment=None, use_last_uniforms=True):
+
+        self._opengl.attach_shaders(
+            [c(x) for x, c in
+                zip(
+                    (geometry, vertex, fragment),
+                    (GeometryShader, VertexShader, FragmentShader)
+                ) if x is not None
+             ]
+        )
+
+        self.uniforms = CyUniformBase(self._opengl)
+
+        if use_last_uniforms:
+            for name in self._opengl.get_active_uniforms():
+                value = self._opengl.get_uniform(name)
+
+                if value is not None:
+                    self._opengl.set_uniform(name, value)
+        else:
+            self._opengl.reset_view()
 
     # we don't use setters here as we want to be clear on when we give C a
     # new matrix (e.g. rasterizer.model_matrix[:, 2] = 2 would not be caught
@@ -147,10 +207,22 @@ class CyRasterizerBase(object):
             Mask showing what true values the rasterizer wrote to.
 
         """
+
+
+        '''
+            We need to flipud the texture when passing it to OpenGL.
+            OpenGL's coordinate system maps textures down to up where (0,0)
+            is in the bottom left and (1,1) is in the top right.
+
+            When we retrieve back the pixels from the rasterizer we
+            flip them back to our coordinate system.
+        '''
+
         points = np.require(points, dtype=np.float32, requirements='c')
         trilist = np.require(trilist, dtype=np.uint32, requirements='c')
-        texture = np.require(texture, dtype=np.float32, requirements='c')
+        texture = np.require(np.flipud(texture), dtype=np.float32, requirements='c')
         tcoords = np.require(tcoords, dtype=np.float32, requirements='c')
+
         if per_vertex_f3v is None:
             per_vertex_f3v = points
         interp = np.require(per_vertex_f3v, dtype=np.float32, requirements='c')
@@ -158,7 +230,7 @@ class CyRasterizerBase(object):
                                                            trilist, tcoords,
                                                            texture)
         mask = rgb_fb[..., 3].astype(np.bool)
-        return rgb_fb[..., :3].copy(), f3v_fb, mask
+        return np.flipud(rgb_fb[..., :3]).copy(), np.flipud(f3v_fb), np.flipud(mask)
 
 
 # Maintain a subclass here to allow other subclasses of CyRasterizerBase that

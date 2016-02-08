@@ -1,5 +1,5 @@
 # Don't check in Cython generated CPP
-cyrasterize/glrasterizer.cpp
+cyrasterize/*.cpp
 *.swp
 *.pyc
 *.so

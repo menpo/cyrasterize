@@ -7,59 +7,13 @@
 #include "glr.h"
 
 void glr_check_error(void) {
-	GLenum err;
-	err = glGetError();
+	GLenum err = glGetError();
+
 	if (err != GL_NO_ERROR) {
 		printf("Error. glError: 0x%04X", err);
 		printf(" - %s\n", gluErrorString(err));
 		exit(EXIT_FAILURE);
 	}
-}
-
-GLuint glr_create_shader_from_string(GLenum shader_type,
-								     const GLchar* string) {
-	GLuint shader = glCreateShader(shader_type);
-	glShaderSource(shader, 1, &string, NULL);
-	glCompileShader(shader);
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE) {
-		GLint info_log_length;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &info_log_length);
-		GLchar* str_info_log = new GLchar[info_log_length + 1];
-		glGetShaderInfoLog(shader, info_log_length, NULL, str_info_log);
-		const char *strShaderType = NULL;
-		switch (shader_type) {
-			case GL_VERTEX_SHADER:   strShaderType = "vertex";   break;
-			case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-			case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-		}
-		fprintf(stderr, "Compile failure in %s shader: \n%s\n",
-				strShaderType, str_info_log);
-		delete[] str_info_log;
-		exit(EXIT_FAILURE);
-	}
-	return shader;
-}
-
-GLuint glr_create_program(GLuint *shaders, size_t n_shaders) {
-	GLuint program = glCreateProgram();
-	for(size_t i = 0; i < n_shaders; i++)
-		glAttachShader(program, shaders[i]);
-	glLinkProgram(program);
-	GLint status;
-	glGetProgramiv(program, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE) {
-		GLint info_log_length;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
-		GLchar* str_info_log = new GLchar[info_log_length + 1];
-		glGetProgramInfoLog(program, info_log_length, NULL, str_info_log);
-		fprintf(stderr, "Linker failure: %s\n", str_info_log);
-		delete[] str_info_log;
-	}
-	for(size_t i = 0; i < n_shaders; i++)
-		glDetachShader(program, shaders[i]);
-	return program;
 }
 
 glr_texture glr_build_uint_rgb_texture(uint8_t* texture, size_t w, size_t h)
@@ -179,11 +133,12 @@ glr_vectorset glr_build_unsigned_3v(unsigned* vectors, size_t n_vectors) {
 	return vector_tmp;
 }
 
-glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_data,
+glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, double* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_double_4v(vertices, n_points);
+	mesh.normals = glr_build_double_4v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -191,11 +146,12 @@ glr_textured_mesh glr_build_d4_f3_rgba_uint8_mesh(double* vertices, float* f3v_d
 	return mesh;
 }
 
-glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		uint8_t* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_float_3v(vertices, n_points);
+	mesh.normals = glr_build_float_3v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -203,11 +159,12 @@ glr_textured_mesh glr_build_f3_f3_rgb_uint8_mesh(float* vertices, float* f3v_dat
 	return mesh;
 }
 
-glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* f3v_data,
+glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* normals, float* f3v_data,
         size_t n_points, unsigned* trilist, size_t n_tris, float* tcoords,
 		float* texture, size_t tex_width, size_t tex_height) {
 	glr_textured_mesh mesh;
 	mesh.vertices = glr_build_float_3v(vertices, n_points);
+	mesh.normals = glr_build_float_3v(normals, n_points);
 	mesh.f3v_data = glr_build_float_3v(f3v_data, n_points);
 	mesh.tcoords = glr_build_float_2v(tcoords, n_points);
 	mesh.trilist = glr_build_unsigned_3v(trilist, n_tris);
@@ -215,34 +172,6 @@ glr_textured_mesh glr_build_f3_f3_rgb_float_mesh(float* vertices, float* f3v_dat
 	return mesh;
 }
 
-glr_camera glr_build_othographic_camera_at_origin(void)
-{
-	glr_camera camera;
-	// set the camera's matrices to I
-	glr_math_float_matrix_eye(camera.projectionMatrix);
-    glr_math_float_matrix_eye(camera.viewMatrix);
-	return camera;
-}
-
-glr_camera glr_build_camera(float* projectionMatrix, float* viewMatrix) {
-    glr_camera camera;
-    memcpy(camera.projectionMatrix, projectionMatrix,
-           sizeof(camera.projectionMatrix));
-    // copy the modelMatrix
-    memcpy(camera.viewMatrix, viewMatrix,
-           sizeof(camera.viewMatrix));
-    return camera;
-}
-
-glr_scene glr_build_scene(void)
-{
-	glr_scene scene;
-    std::cout << "Its all good";
-	glr_math_float_matrix_eye(scene.modelMatrix);
-    glr_math_float_vector4_0001(scene.light.position);
-    scene.camera = glr_build_othographic_camera_at_origin();
-    return scene;
-}
 
 void glr_init_and_bind_array_buffer(glr_vectorset *vector) {
 	glGenBuffers(1, &(vector->vbo));
@@ -312,22 +241,50 @@ void glr_init_texture(glr_texture *texture) {
     // In order then, the first thing to do is choose our texture unit
     //
     // 1. Set the unit to texture->unit
+
+
 	glActiveTexture(GL_TEXTURE0 + texture->unit);
+
+
     // 2. Get a handle on a piece of OpenGL memory where we can store our
     // texture
 	glGenTextures(1, &(texture->id));
+
     // 3. Set the currently active GL_TEXTURE_2D to the texture->id
 	glBindTexture(GL_TEXTURE_2D, texture->id);
+
+    // oid glTexImage2D(	GLenum target,
+    // 	GLint level,
+    // 	GLint internalFormat,
+    // 	GLsizei width,
+    // 	GLsizei height,
+    // 	GLint border,
+    // 	GLenum format,
+    // 	GLenum type,
+    // 	const GLvoid * data);
+    printf("internal_format %d\n width %d\n height %d\n format %d\ntype %d\n",
+        texture->internal_format,
+        texture->width,
+        texture->height,
+        texture->format,
+        texture->type
+    );
+
     // 4. fill the currently active GL_TEXTURE_2D (texture->id thanks to 3.)
     // with our actual pixels
 	glTexImage2D(GL_TEXTURE_2D, 0, texture->internal_format,
 		texture->width, texture->height, 0, texture->format,
 		texture->type, texture->data);
+
+    glr_check_error();
+
 	// Create the description of the texture (sampler)
 	glGenSamplers(1, &(texture->sampler));
 	glSamplerParameteri(texture->sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameteri(texture->sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glSamplerParameteri(texture->sampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+
+
     // Bind this metadata to the unit
 	glBindSampler(texture->unit, texture->sampler);
     // UNBIND THE TEXTURE UNIT. Now all our texture information is safe! Just
@@ -346,6 +303,7 @@ void glr_init_vao(glr_textured_mesh *mesh) {
     // 2. Make all our intialization code run. The VAO will track buffer
     // attribute bindings for us.
 	glr_init_and_bind_array_buffer(&mesh->vertices);
+	glr_init_and_bind_array_buffer(&mesh->normals);
 	glr_init_and_bind_array_buffer(&mesh->f3v_data);
 	glr_init_and_bind_array_buffer(&mesh->tcoords);
 	glr_init_and_bind_element_buffer(&mesh->trilist);
@@ -378,7 +336,6 @@ void glr_set_global_settings(void) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);  // as we do a flip in the fragment shader!
 	glDepthFunc(GL_LEQUAL);
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 }
@@ -389,55 +346,6 @@ void glr_set_clear_color(float* cv) {
 
 void glr_get_clear_color(float* cv) {
     glGetFloatv(GL_COLOR_CLEAR_VALUE, cv);
-}
-
-void glr_render_scene(glr_scene* scene) {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(scene->program);
-
-    // 1. SETUP UNIFORMS
-    GLuint uniform;
-	// a. camera uniforms
-    uniform = glGetUniformLocation(scene->program, "viewMatrix");
-    glUniformMatrix4fv(uniform, 1, GL_FALSE, scene->camera.viewMatrix);
-
-	uniform = glGetUniformLocation(scene->program, "projectionMatrix");
-	glUniformMatrix4fv(uniform, 1, GL_FALSE, scene->camera.projectionMatrix);
-
-	// b. modelMatrix
-    uniform = glGetUniformLocation(scene->program, "modelMatrix");
-    glUniformMatrix4fv(uniform, 1, GL_FALSE, scene->modelMatrix);
-
-	// c. lightPosition
-    uniform = glGetUniformLocation(scene->program, "lightPosition");
-    glUniform4fv(uniform, 1, scene->light.position);
-
-    // d. textureImage
-	uniform = glGetUniformLocation(scene->program, "textureImage");
-	glUniform1i(uniform, scene->mesh.texture.unit);
-
-	// 2. BIND VAO AND DRAW
-    // this call to bind vertex array means trilist, points,
-    // and tcoords are all bound to the attributes and ready to go
-	glBindVertexArray(scene->mesh.vao);
-	glDrawElements(GL_TRIANGLES, scene->mesh.trilist.n_vectors * 3,
-			GL_UNSIGNED_INT, 0);
-    // 3. DETATCH + SWAP BUFFERS
-    // now we're done, can disable the vertex array (for safety)
-	glBindVertexArray(0);
-	glfwSwapBuffers(scene->context->window);
-}
-
-void glr_render_to_framebuffer(glr_scene* scene)
-{
-	// bind the framebuffer and render as normal
-	glBindFramebuffer(GL_FRAMEBUFFER, scene->fbo);
-	glr_render_scene(scene);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // grab the framebuffer content
-	glr_get_framebuffer(&scene->fb_rgb_target);
-	glr_get_framebuffer(&scene->fb_f3v_target);
 }
 
 void glr_get_framebuffer(glr_texture* texture)
@@ -454,6 +362,7 @@ void glr_destroy_vbos_on_trianglar_mesh(glr_textured_mesh* mesh) {
 	glBindVertexArray(0);
     // delete our buffers
 	glDeleteBuffers(1, &(mesh->vertices.vbo));
+	glDeleteBuffers(1, &(mesh->normals.vbo));
 	glDeleteBuffers(1, &(mesh->f3v_data.vbo));
 	glDeleteBuffers(1, &(mesh->trilist.vbo));
 	glDeleteBuffers(1, &(mesh->tcoords.vbo));

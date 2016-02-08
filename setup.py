@@ -1,22 +1,24 @@
-from setuptools import setup, find_packages, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
+from Cython.Build import cythonize
+from functools import reduce
+from glob import glob
 from os import path
-import sys
+from setuptools import setup, find_packages, Extension
+import numpy as np
 import os
 import shutil
-from glob import glob
-from functools import reduce
-from buildhelpers import rebuild_c_shaders
+import sys
 import versioneer
 
-# always recreate the compiled in C shader files immediately
-rebuild_c_shaders()
+# Declare the modules to by cythonised
+sources = [
+    "cyrasterize.glrasterizer",
+    "cyrasterize.c_opengl_debug",
+    "cyrasterize.shader"
+]
 
-pyx_sources = [path.join(".", "cyrasterize", "glrasterizer.pyx")]
-cythonized_sources = [path.join(".", "cyrasterize", "glrasterizer.cpp")]
 
 # files to compile from glrasterizer
-glrasterizer_sources = ["glrasterizer.cpp", "glr.cpp", "glrglfw.cpp"]
+glrasterizer_sources = ["glr.cpp", "glrglfw.cpp"]
 external_sources = [path.join(".", "cyrasterize", "cpp", s) for s in
                     glrasterizer_sources]
 
@@ -26,7 +28,7 @@ ext_kwargs = {
     'language': 'c++'
 }
 
-package_data_globs = ['*.pyx', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
+package_data_globs = ['*.pyx', '*.pxd', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
 
 # unfortunately, linking requirements differ on OS X vs Linux vs Windows
 # On Windows we essentially just copy the DLLs into the path so that
@@ -55,83 +57,32 @@ if sys.platform.startswith('win'):
     package_data_globs.append('*.dll')
 elif sys.platform.startswith('linux'):
     ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
+    ext_kwargs['include_dirs'] = [np.get_include()]
+
 elif sys.platform == 'darwin':
     ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
+    ext_kwargs['include_dirs'] = [np.get_include()]
     # TODO why does it compile without these on OS X?!
     #c_ext.extra_compile_args += ['-framework OpenGL',
     #                             '-framework Cocoa', '-framework IOKit',
     #                             '-framework CoreVideo']
 
-ext_name = 'cyrasterize.glrasterizer'
+
+def module_to_path(module):
+    return path.join('.', *module.split('.'))
 
 
 # cythonize the .pyx file returning a suitable Extension
-def ext_from_source():
-    from Cython.Build import cythonize
-    return cythonize([
-        Extension(ext_name, pyx_sources + external_sources, **ext_kwargs)
+def cython_exts():
+    return cythonize(
+        [Extension(x, [module_to_path(x) + '.pyx'] + external_sources, **ext_kwargs) 
+        for x in sources
     ])
-
-
-# build an extension directly from the cythonized source - no need for Cython
-def ext_from_cythonized():
-    return [Extension(ext_name, cythonized_sources + external_sources,
-                      **ext_kwargs)]
-
-
-try:
-    # If Cython is available, build the extension module from the Cython source
-    extensions = ext_from_source()
-except ImportError:
-    # No Cython! Let's check if the cythonized file is already present
-    # (NB: file is not in git but needs to be included in distributions)
-    from os.path import exists
-    if not all([exists(f) for f in cythonized_sources]):
-        raise ImportError("Installing from source requires Cython")
-    # good, we have the file. Just build a good old-fashioned extension
-    extensions = ext_from_cythonized()
-
-# either way, by now, extensions is correctly set.
-
-# get the versioneer cmdclass
-cmdclass = versioneer.get_cmdclass()
-_sdist = cmdclass['sdist']
-
-# Subclass versioneer sdist to ensure Cython is run when a new distribution is
-# built.
-class sdist(_sdist):
-
-    def run(self):
-        # Make sure the compiled Cython files in the distribution are
-        # up-to-date
-        ext_from_source()
-        _sdist.run(self)
-
-# set the sdist back (cython -> versioneer -> setuptools)
-cmdclass['sdist'] = sdist
-
-
-# http://stackoverflow.com/a/21621689/2691632
-# In the case where the user did not have NumPy, build_ext will be run and
-# numpy will not yet be available. This class delays the use of NumPy until
-# after installation of the setup_requires dependencies and ensures that NumPy
-# thinks it is fully installed to allow us to proceed.
-class build_ext(_build_ext):
-
-    def finalize_options(self):
-        _build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process
-        __builtins__.__NUMPY_SETUP__ = False
-        print('build_ext: including numpy files')
-        import numpy
-        self.include_dirs.append(numpy.get_include())
-
-cmdclass['build_ext'] = build_ext
 
 
 setup(name='cyrasterize',
       version=versioneer.get_version(),
-      cmdclass=cmdclass,
+      cmdclass=versioneer.get_cmdclass(),
       description='Simple fast OpenGL offscreen rasterizing in Python',
       author='James Booth',
       author_email='james.booth08@imperial.ac.uk',
@@ -149,9 +100,10 @@ setup(name='cyrasterize',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.4'
       ],
-      ext_modules=extensions,
+      ext_modules=cython_exts(),
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
       setup_requires=['numpy>=1.10'],
-      install_requires=['numpy>=1.10']
+      install_requires=['numpy>=1.10'],
+      include_dirs=[np.get_include()]
       )
