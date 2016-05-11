@@ -19,7 +19,7 @@ cdef print_error():
     # cdef bytes pyString = c_char
 
     if code:
-        log.error(" *** Error *** {}".format(code), color=bcolors.RED)
+        log.error(bcolors.RED + " *** Error *** {}".format(code) + bcolors.END)
 
 cdef void   glActiveTexture (GLenum texture) with gil:
     printWarn("GL glActiveTexture( texture = " + str(texture) + ", )")
