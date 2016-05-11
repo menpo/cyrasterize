@@ -56,7 +56,7 @@ if sys.platform.startswith('win'):
     # look for .dlls on the package_data
     package_data_globs.append('*.dll')
 elif sys.platform.startswith('linux'):
-    ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
+    ext_kwargs['libraries'] = ['m', 'GLEW', 'OSMesa']
     ext_kwargs['include_dirs'] = [np.get_include()]
 
 elif sys.platform == 'darwin':
