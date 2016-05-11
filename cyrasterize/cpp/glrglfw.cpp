@@ -1,25 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+//#include <stdexcept>
 #include "glrglfw.h"
 #include "glr.h"
 
 glr_glfw_context glr_build_glfw_context_offscreen(int width, int height){
 	glr_glfw_context context;
-	context.title = "Offscreen Viewer";
-    context.window_width= width;
+    context.window_width = width;
     context.window_height = height;
-    context.offscreen = true;
-    return context;
-}
-
-glr_glfw_context glr_build_glfw_context_onscreen(int width, int height){
-	glr_glfw_context context;
-	context.title = "Onscreen Viewer";
-    context.window_width= width;
-    context.window_height = height;
-    context.offscreen = false;
+    context.frame_buffer = malloc(width * height * 4 * sizeof(GLubyte));
+//    if (context->frame_buffer == NULL) {
+//        throw std::runtime_error("Failed to create framebuffer");
+//    }
     return context;
 }
 
@@ -53,29 +45,29 @@ glr_STATUS _glr_glew_init(void) {
 glr_STATUS glr_glfw_init(glr_glfw_context* context)
 {
 	printf("glr_glfw_init(...)\n");
-	// Fire up glfw
-    if (!glfwInit())
-        return GLR_GLFW_INIT_FAILED;
-    glfwWindowHint(GLFW_VISIBLE, !context->offscreen);
-    // ask for at least OpenGL 3.3 (might be able to
-    // relax this in future to 3.2/3.1)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // OS X will only give us such a profile if we ask for a forward
-    // compatable core profile. Not that the forward copatibility is
-    // a noop as we ask for 3.3, but unfortunately OS X needs it.
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_DEPTH_BITS, 16);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    context->window = glfwCreateWindow(
-            context->window_width, context->window_height,
-            context->title, NULL, NULL);
+	// Fire up osmesa
+	// format, depthBits, stencilBits, accumBits, sharelist
+    int attriblist[] = {OSMESA_PROFILE,               OSMESA_CORE_PROFILE,
+                        OSMESA_CONTEXT_MAJOR_VERSION, 3,
+                        OSMESA_CONTEXT_MINOR_VERSION, 3,
+                        OSMESA_DEPTH_BITS,            16,
+                        OSMESA_STENCIL_BITS,          8,
+                        OSMESA_FORMAT,                OSMESA_RGBA,
+                        0};
+    context->window = OSMesaCreateContextAttribs(attriblist, NULL);
+
     if (!context->window)
     {
-        glfwTerminate();
+        glr_glfw_terminate(context);
+        printf("Windows creation failed\n");
         return GLR_GLFW_WINDOW_FAILED;
     }
-    glfwMakeContextCurrent(context->window);
+    if (OSMesaMakeCurrent(context->window, context->frame_buffer, GL_UNSIGNED_BYTE,
+                          context->window_width, context->window_height) != GL_TRUE) {
+        glr_glfw_terminate(context);
+        printf("Make current failed\n");
+        return GLR_GLFW_WINDOW_FAILED;
+    }
     printf("Have context.\n");
     glr_STATUS status = _glr_glew_init();
     if (status != GLR_SUCCESS) {
@@ -93,7 +85,7 @@ glr_STATUS glr_glfw_init(glr_glfw_context* context)
 void glr_glfw_terminate(glr_glfw_context* context)
 {
     // clear up our GLFW state
-    glfwDestroyWindow(context->window);
-    glfwTerminate();
+    OSMesaDestroyContext(context->window);
+    free(context->frame_buffer);
 }
 

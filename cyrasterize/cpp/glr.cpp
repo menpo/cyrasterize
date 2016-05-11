@@ -3,7 +3,6 @@
 #include <math.h>
 #include <string.h>
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include "glr.h"
 
 void glr_check_error(void) {
@@ -11,7 +10,7 @@ void glr_check_error(void) {
 
 	if (err != GL_NO_ERROR) {
 		printf("Error. glError: 0x%04X", err);
-		printf(" - %s\n", gluErrorString(err));
+//		printf(" - %s\n", gl uErrorString(err));
 		exit(EXIT_FAILURE);
 	}
 }

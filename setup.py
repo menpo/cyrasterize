@@ -60,8 +60,9 @@ elif sys.platform.startswith('linux'):
     ext_kwargs['include_dirs'] = [np.get_include()]
 
 elif sys.platform == 'darwin':
-    ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
-    ext_kwargs['include_dirs'] = [np.get_include()]
+    ext_kwargs['libraries'] = ['m', 'OSMesa', 'GLEW']
+    ext_kwargs['include_dirs'] = [np.get_include(), '/Users/pts08/gits/mesa/test/include']
+    ext_kwargs['library_dirs'] = ['/Users/pts08/gits/mesa/test/lib']
     # TODO why does it compile without these on OS X?!
     #c_ext.extra_compile_args += ['-framework OpenGL',
     #                             '-framework Cocoa', '-framework IOKit',

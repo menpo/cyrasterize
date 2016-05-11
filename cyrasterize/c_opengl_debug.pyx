@@ -5,9 +5,6 @@ cimport c_opengl as cgl
 cdef extern from *:
     ctypedef char* const_char_ptr "const char*"
 
-cdef extern from 'GL/glew.h':
-    const GLubyte* gluErrorString(GLenum error);
-
 class bcolors:
     YELLOW = '\x1b[33m'
     RED = '\x1b[31m'
@@ -18,11 +15,11 @@ def printWarn(string, color=bcolors.YELLOW):
 
 cdef print_error():
     code = cgl.glGetError()
-    cdef char* c_char = <char*> gluErrorString(code)
-    cdef bytes pyString = c_char
+    # cdef char* c_char = <char*> gluErrorString(code)
+    # cdef bytes pyString = c_char
 
     if code:
-        log.error(" *** Error *** [{}] {}".format(pyString, code), color=bcolors.RED)
+        log.error(" *** Error *** {}".format(code), color=bcolors.RED)
 
 cdef void   glActiveTexture (GLenum texture) with gil:
     printWarn("GL glActiveTexture( texture = " + str(texture) + ", )")

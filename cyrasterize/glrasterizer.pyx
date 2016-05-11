@@ -329,10 +329,7 @@ cdef class GLScene:
         # 3. DETATCH + SWAP BUFFERS
         # now we're done, can disable the vertex array (for safety)
         glBindVertexArray(0)
-
-        cdef GLFWwindow* window = <GLFWwindow*> self.context.window
-
-        glfwSwapBuffers(<GLFWwindow *> window)
+        glFinish()
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 

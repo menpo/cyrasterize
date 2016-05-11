@@ -1,14 +1,17 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "GL/glew.h"
+#ifndef GLAPI
+#define GLAPI extern
+#endif
+#include "GL/osmesa.h"
+
 
 typedef struct {
     int window_width;
 	int window_height;
-	const char *title;
-	bool offscreen;
-    GLFWwindow* window;
+	void* frame_buffer;
+    OSMesaContext window;
 } glr_glfw_context;
 
 typedef enum {
@@ -19,7 +22,6 @@ typedef enum {
 }  glr_STATUS;
 
 glr_glfw_context glr_build_glfw_context_offscreen(int width, int height);
-glr_glfw_context glr_build_glfw_context_onscreen(int width, int height);
 
 glr_STATUS glr_glfw_init(glr_glfw_context* context);
 

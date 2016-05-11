@@ -112,10 +112,10 @@ cdef extern from "./cpp/glr.h":
     void glr_check_error()
 
 
-cdef extern from "GLFW/glfw3.h":
-    ctypedef struct GLFWwindow:
-        pass
-    void glfwSwapBuffers (GLFWwindow *window) nogil
+# cdef extern from "GLFW/glfw3.h":
+#     ctypedef struct GLFWwindow:
+#         pass
+#     void glfwSwapBuffers (GLFWwindow *window) nogil
 
 cdef extern from "stdlib.h":
     ctypedef unsigned long size_t
