@@ -1,4 +1,5 @@
 sudo: false
+language: python
 
 git:
   depth: 200
@@ -9,13 +10,23 @@ env:
   matrix:
     - PYTHON_VERSION: 2.7
     - PYTHON_VERSION: 3.4
+    - PYTHON_VERSION: 3.5
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
 
 install:
-- wget https://raw.githubusercontent.com/menpo/condaci/v0.4.8/condaci.py -O condaci.py
-- python condaci.py setup
+  - wget https://raw.githubusercontent.com/menpo/condaci/v0.4.8/condaci.py -O condaci.py
+  - python condaci.py setup
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 script:
-- ~/miniconda/bin/python condaci.py build ./conda
+  - ~/miniconda/bin/python condaci.py build ./conda
 
 notifications:
   slack:
