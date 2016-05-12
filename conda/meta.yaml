@@ -6,17 +6,15 @@ requirements:
   build:
     - python
     - setuptools
-    - numpy 1.10.*
-    - cython 0.23.*
-    - glew 1.11.0
-    - glfw3 3.0.4
-    - msinttypes r26 [win]
+    - numpy
+    - cython
+    - glew-osmesa
+    - msinttypes r26  # [win]
 
   run:
     - python
-    - numpy 1.10.*
-    - glew 1.11.0 [unix]
-    - glfw3 3.0.4 [unix]
+    - numpy
+    - glew-osmesa
 
 about:
   home: https://github.com/menpo/cyrasterize/
