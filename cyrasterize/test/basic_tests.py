@@ -1,8 +1,15 @@
+import os
+import unittest
 import numpy as np
-from cyrasterize import CyRasterizer
 from numpy.testing import assert_allclose
 
+from cyrasterize import CyRasterizer
 
+
+NO_DISPLAY = os.environ.get('TRAVIS') or os.environ.get('IN_VM')
+
+
+@unittest.skipIf(NO_DISPLAY, "requires a display")
 def test_basic_random():
     c = CyRasterizer(width=100, height=100)
 
@@ -11,6 +18,7 @@ def test_basic_random():
     colours = np.random.uniform(size=(100, 100, 3))
     tcoords = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
 
-    rgb_image, float_image, mask = c.rasterize(points, trilist, colours, tcoords)
-    
+    rgb_image, float_image, mask = c.rasterize(points, trilist, colours,
+                                               tcoords)
+
     assert_allclose(rgb_image, colours)

@@ -6,18 +6,25 @@ requirements:
   build:
     - python
     - setuptools
-    - numpy 1.10.*
-    - cython 0.21.*
+    - numpy >=1.10,<2.0
+    - cython >=0.23
     - glew 1.11.0
     - glfw3 3.0.4
-    - msinttypes r26 [win]
+    - msinttypes r26  # [win]
 
   run:
     - python
-    - numpy 1.10.*
-    - glew 1.11.0 [unix]
-    - glfw3 3.0.4 [unix]
+    - numpy >=1.10,<2.0
+    - glew 1.11.0  # [unix]
+    - glfw3 3.0.4  # [unix]
+
+test:
+  requires:
+    - nose
+
+  commands:
+    - nosetests cyrasterize -v
 
 about:
-  home: https://github.com/menpo/cyrasterize/
-  license: BSD
+  home: https://github.com/menpo/cyrasterize
+  license: BSD 3-clause

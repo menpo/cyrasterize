@@ -148,10 +148,12 @@ setup(name='cyrasterize',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.4'
+          'Programming Language :: Python :: 3.5'
       ],
       ext_modules=extensions,
       packages=find_packages(),
       package_data={'cyrasterize': package_data_globs},
       setup_requires=['numpy>=1.10'],
+      tests_require=['nose'],
       install_requires=['numpy>=1.10']
-      )
+)

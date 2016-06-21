@@ -237,7 +237,6 @@ glr_camera glr_build_camera(float* projectionMatrix, float* viewMatrix) {
 glr_scene glr_build_scene(void)
 {
 	glr_scene scene;
-    std::cout << "Its all good";
 	glr_math_float_matrix_eye(scene.modelMatrix);
     glr_math_float_vector4_0001(scene.light.position);
     scene.camera = glr_build_othographic_camera_at_origin();
