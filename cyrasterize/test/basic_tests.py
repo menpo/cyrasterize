@@ -6,7 +6,8 @@ from numpy.testing import assert_allclose
 from cyrasterize import CyRasterizer
 
 
-NO_DISPLAY = os.environ.get('TRAVIS') or os.environ.get('IN_VM')
+NO_DISPLAY = (os.environ.get('TRAVIS') or os.environ.get('IN_VM') or
+              os.environ.get('JENKINS_URL'))
 
 
 @unittest.skipIf(NO_DISPLAY, "requires a display")
