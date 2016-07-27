@@ -104,6 +104,32 @@ def normalize_v3(arr):
     arr[:,2] /= lens
     return arr
 
+
+def vertex_normals(points, trilist):
+    # Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
+    cdef np.ndarray[float, ndim=2, mode="c"] norm = np.zeros( (points.shape[0], points.shape[1]), dtype=np.float32)
+    tris = points[trilist]
+
+    # Calculate the normal for all the triangles, by taking the cross product of the vectors v1-v0, and v2-v0 in each triangle
+    n = np.cross( tris[::,1 ] - tris[::,0]  , tris[::,2 ] - tris[::,0] )
+
+    # n is now an array of normals per triangle. The length of each normal is dependent the vertices,
+    # we need to normalize these, so that our next step weights each normal equally.
+
+    normalize_v3(n)
+
+    # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
+    # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
+    # the triangles' normal. Multiple triangles would then contribute to every vertex, so we need to normalize again afterwards.
+    # The cool part, we can actually add the normals through an indexed view of our (zeroed) per vertex normal array
+
+    norm[ trilist[:,0] ] += n
+    norm[ trilist[:,1] ] += n
+    norm[ trilist[:,2] ] += n
+    normalize_v3(norm)
+
+    return norm
+
 cdef class GLScene:
     cdef GLuint program
     cdef GLuint fbo
@@ -368,30 +394,21 @@ cdef class GLScene:
             np.ndarray[float, ndim=2, mode="c"] tcoords not None,
             np.ndarray[float, ndim=3, mode="c"] texture not None):
 
-        #Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
-        cdef np.ndarray[float, ndim=2, mode="c"] norm = np.zeros( (points.shape[0], points.shape[1]), dtype=np.float32)
-        tris = points[trilist]
-        #Calculate the normal for all the triangles, by taking the cross product of the vectors v1-v0, and v2-v0 in each triangle
-        n = np.cross( tris[::,1 ] - tris[::,0]  , tris[::,2 ] - tris[::,0] )
+        cdef np.ndarray[float, ndim=2, mode="c"] normals = vertex_normals(points, trilist)
+        print('rendering through custom normals code...')
+        return self.render_offscreen_rgb_custom_vertex_normals(
+            points, normals, f3v_data, trilist, tcoords, texture)
 
-        # n is now an array of normals per triangle. The length of each normal is dependent the vertices,
-        # we need to normalize these, so that our next step weights each normal equally.
-
-        normalize_v3(n)
-
-        # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
-        # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
-        # the triangles' normal. Multiple triangles would then contribute to every vertex, so we need to normalize again afterwards.
-        # The cool part, we can actually add the normals through an indexed view of our (zeroed) per vertex normal array
-
-        norm[ trilist[:,0] ] += n
-        norm[ trilist[:,1] ] += n
-        norm[ trilist[:,2] ] += n
-        normalize_v3(norm)
-
+    def render_offscreen_rgb_custom_vertex_normals(self,
+            np.ndarray[float, ndim=2, mode="c"] points not None,
+            np.ndarray[float, ndim=2, mode="c"] normals not None,
+            np.ndarray[float, ndim=2, mode="c"] f3v_data not None,
+            np.ndarray[unsigned, ndim=2, mode="c"] trilist not None,
+            np.ndarray[float, ndim=2, mode="c"] tcoords not None,
+            np.ndarray[float, ndim=3, mode="c"] texture not None):
 
         self.mesh = glr_build_f3_f3_rgb_float_mesh(
-            &points[0, 0], &norm[0, 0], &f3v_data[0, 0], points.shape[0],
+            &points[0, 0], &normals[0, 0], &f3v_data[0, 0], points.shape[0],
             &trilist[0, 0], trilist.shape[0], &tcoords[0, 0],
             &texture[0, 0, 0], texture.shape[1], texture.shape[0])
 
