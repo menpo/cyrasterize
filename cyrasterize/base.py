@@ -11,13 +11,11 @@ class CyUniformBase(object):
     Parameters
     ----------
 
-    opengl : an CyRasterize canvas instance
+    opengl : A CyRasterize canvas instance
 
     Notes
     -----
     """
-
-
     def __init__(self, opengl):
         self._opengl = opengl
 
@@ -35,6 +33,14 @@ class CyUniformBase(object):
                 fget=partial(fget, name=name),
                 fset=partial(fset, name=name), doc=doc)
             )
+
+    def __str__(self):
+        s = ''
+        uniforms = self._opengl.get_active_uniforms()
+        for name in uniforms:
+            s += '{}\n'.format(name)
+            s += '{}\n\n'.format(self.__getattribute__(name))
+        return s
 
 
 class CyRasterizerBase(object):
@@ -122,7 +128,6 @@ class CyRasterizerBase(object):
     @property
     def projection_matrix(self):
         return self._opengl.get_projection_matrix()
-
 
     def set_shaders(self, geometry=None, vertex=None, fragment=None, use_last_uniforms=True):
 
