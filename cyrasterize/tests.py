@@ -5,8 +5,8 @@ from cyrasterize import CyRasterizer
 from numpy.testing import assert_allclose
 
 SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file__), 'shaders', 'texture_shader')
-DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
-DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rb').read()
+DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rt').read()
+DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rt').read()
 
 
 def test_basic_random():

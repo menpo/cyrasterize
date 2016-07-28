@@ -13,8 +13,8 @@ from .shader import VertexShader, FragmentShader
 
 
 SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file__), 'shaders', 'blinnphong')
-DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rb').read()
-DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rb').read()
+DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rt').read()
+DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rt').read()
 
 ctypedef void (*matrix_fun)(GLint, GLsizei, GLboolean, GLfloat *)
 
@@ -382,8 +382,9 @@ cdef class GLScene:
                 &name_len, &num, &_type, name)
 
             name[name_len] = 0
-
-            uniforms.append(name)
+            # .decode('utf8') to go to unicode, then cast to str -
+            # in Python 2.7 this is back to bytes, in Py 3 stays as unicode.
+            uniforms.append(str(name.decode('utf8')))
 
         return uniforms
 
