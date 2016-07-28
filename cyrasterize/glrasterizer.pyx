@@ -395,11 +395,14 @@ cdef class GLScene:
             np.ndarray[float, ndim=2, mode="c"] tcoords not None,
             np.ndarray[float, ndim=3, mode="c"] texture not None):
 
+        # Calculate the per-vertex normals...
         cdef np.ndarray[float, ndim=2, mode="c"] normals = vertex_normals(points, trilist)
-        print('rendering through custom normals code...')
+        # ...and then call the more flexible custom_vertex_normals code.
         return self.render_offscreen_rgb_custom_vertex_normals(
             points, normals, f3v_data, trilist, tcoords, texture)
 
+    # A more flexible version of render_offscreen_rgb where custom
+    # per-vertex normals can be provided.
     def render_offscreen_rgb_custom_vertex_normals(self,
             np.ndarray[float, ndim=2, mode="c"] points not None,
             np.ndarray[float, ndim=2, mode="c"] normals not None,
