@@ -1,58 +1,61 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glrglfw.h"
 #include "glr.h"
+#include "print.h"
+
+
+void glfw_error_callback(int error, const char* description)
+{
+    py_printf("GLFW ERROR (%d): %s\n", error, description);
+}
+
 
 glr_glfw_context glr_build_glfw_context_offscreen(int width, int height){
 	glr_glfw_context context;
 	context.title = "Offscreen Viewer";
-    context.window_width= width;
+    context.window_width=  width;
     context.window_height = height;
     context.offscreen = true;
     return context;
 }
 
-glr_glfw_context glr_build_glfw_context_onscreen(int width, int height){
-	glr_glfw_context context;
-	context.title = "Onscreen Viewer";
-    context.window_width= width;
-    context.window_height = height;
-    context.offscreen = false;
-    return context;
-}
 
-glr_STATUS _glr_glew_init(void) {
+glr_STATUS _glr_glew_init(int verbose) {
 	// Fire up GLEW
     // Flag is required for use with Core Profiles (which we need for OS X)
     // http://www.opengl.org/wiki/OpenGL_Loading_Library#GLEW
     glewExperimental = true;
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {
-	    fprintf(stderr, "GLEW Failed to start! Error: %s\n",
-			   glewGetErrorString(status));
+	    py_printf("GLEW ERROR (%d): Failed to start! %s\n", status,
+	              glewGetErrorString(status));
 	    return GLR_GLEW_FAILED;
 	}
-	fprintf(stdout, "  - Using GLEW %s\n", glewGetString(GLEW_VERSION));
-	if(GLEW_ARB_texture_buffer_object_rgb32)
-	   fprintf(stdout, "  - Float (X,Y,Z) rendering is supported\n");
-	else
-	   fprintf(stdout, "  - Float (X,Y,Z) rendering not supported\n");
+	py_printf_v(verbose, "  - Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	if(GLEW_ARB_texture_buffer_object_rgb32) {
+	   py_printf_v(verbose, "  - Float (X,Y,Z) rendering is supported\n");
+	} else {
+	   py_printf_v(verbose, "  - Float (X,Y,Z) rendering not supported\n");
+	}
 
-	fprintf(stdout,"  - OpenGL Version: %s\n",glGetString(GL_VERSION));
+	py_printf_v(verbose, "  - OpenGL Version: %s\n",glGetString(GL_VERSION));
     // GLEW initialization sometimes sets the GL_INVALID_ENUM state even
     // though all is fine - swallow it here (and warn the user)
     // http://www.opengl.org/wiki/OpenGL_Loading_Library#GLEW
     GLenum err = glGetError();
-    if (err == GL_INVALID_ENUM)
-        fprintf(stderr,"swallowing GL_INVALID_ENUM error\n");
+    if (err == GL_INVALID_ENUM) {
+        py_printf("GLEW Warning (%d): Swallowing GL_INVALID_ENUM error\n", err);
+    }
     return GLR_SUCCESS;
 }
 
-glr_STATUS glr_glfw_init(glr_glfw_context* context)
+glr_STATUS glr_glfw_init(glr_glfw_context* context, int verbose)
 {
-	printf("glr_glfw_init(...)\n");
+    // Set up the error callback so we get more useful information
+    glfwSetErrorCallback(glfw_error_callback);
+	py_printf_v(verbose, "GLFW: Initializing Context\n");
 	// Fire up glfw
     if (!glfwInit())
         return GLR_GLFW_INIT_FAILED;
@@ -76,8 +79,9 @@ glr_STATUS glr_glfw_init(glr_glfw_context* context)
         return GLR_GLFW_WINDOW_FAILED;
     }
     glfwMakeContextCurrent(context->window);
-    printf("Have context.\n");
-    glr_STATUS status = _glr_glew_init();
+    py_printf_v(verbose, "GLFW: Context Information\n");
+
+    glr_STATUS status = _glr_glew_init(verbose);
     if (status != GLR_SUCCESS) {
         return status;
     }
