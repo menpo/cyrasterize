@@ -95,7 +95,7 @@ class CyRasterizerBase(object):
     """
 
     def __init__(self, width=1024, height=768, model_matrix=None,
-                 view_matrix=None, projection_matrix=None, verbose=True):
+                 view_matrix=None, projection_matrix=None, verbose=False):
         # delay import so we only check for GL setup at first initialization
         from .glrasterizer import GLRasterizer
         self._opengl = GLRasterizer(width, height, verbose=int(verbose))
