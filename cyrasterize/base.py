@@ -167,7 +167,7 @@ class CyRasterizerBase(object):
         self._opengl.set_projection_matrix(value)
 
     def _rasterize(self, points, trilist, texture, tcoords,
-                   per_vertex_f3v=None):
+                   normals=None, per_vertex_f3v=None):
         r"""Rasterizes a textured mesh along with some float interpolant data
         through OpenGL.
 
@@ -175,16 +175,16 @@ class CyRasterizerBase(object):
         ----------
         points : ndarray, shape (n_points, 3)
             The coordinates of points that need to be rasterized
-
         trilist: ndarray, shape (n_tris, 3)
             The connectivity information of the triangulation
-
         texture: ndarray, shape (texture_width, texture_height, 3)
             An RGB texture floating point image (pixel values in range [0, 1]
-
         tcoords: ndarray, shape (n_points, 2)
             Per vertex texture coordinates given in the normalized range [0, 1]
+        normals: ndarray, shape (n_points, 3), optional
+            A matrix specifying custom per-vertex normals.
 
+            Default None - vertex normals will be computed from the topology.
         per_vertex_f3v: ndarray, shape (n_points, 3), optional
             A matrix specifying arbitrary 3 floating point numbers per
             vertex. This data will be linearly interpolated across triangles
@@ -213,7 +213,6 @@ class CyRasterizerBase(object):
 
         """
 
-
         '''
             We need to flipud the texture when passing it to OpenGL.
             OpenGL's coordinate system maps textures down to up where (0,0)
@@ -227,13 +226,20 @@ class CyRasterizerBase(object):
         trilist = np.require(trilist, dtype=np.uint32, requirements='c')
         texture = np.require(np.flipud(texture), dtype=np.float32, requirements='c')
         tcoords = np.require(tcoords, dtype=np.float32, requirements='c')
+        if normals is not None:
+            normals = np.require(normals, dtype=np.float32, requirements='c')
 
         if per_vertex_f3v is None:
             per_vertex_f3v = points
         interp = np.require(per_vertex_f3v, dtype=np.float32, requirements='c')
-        rgb_fb, f3v_fb = self._opengl.render_offscreen_rgb(points, interp,
-                                                           trilist, tcoords,
-                                                           texture)
+
+        if normals is not None:
+            # Custom normals - use the special function call that allows us to customize
+            rgb_fb, f3v_fb = self._opengl.render_offscreen_rgb_custom_vertex_normals(
+                points, normals, interp, trilist, tcoords, texture)
+        else:
+            rgb_fb, f3v_fb = self._opengl.render_offscreen_rgb(
+                points, interp, trilist, tcoords, texture)
         mask = rgb_fb[..., 3].astype(np.bool)
         return np.flipud(rgb_fb[..., :3]).copy(), np.flipud(f3v_fb), np.flipud(mask)
 
