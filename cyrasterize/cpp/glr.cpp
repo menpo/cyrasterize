@@ -5,13 +5,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "glr.h"
+#include "print.h"
 
 void glr_check_error(void) {
 	GLenum err = glGetError();
 
 	if (err != GL_NO_ERROR) {
-		printf("Error. glError: 0x%04X", err);
-		printf(" - %s\n", gluErrorString(err));
+		py_printf("GLR Error: glError: 0x%04X", err);
+		py_printf("  - %s\n", gluErrorString(err));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -192,9 +193,8 @@ void glr_init_and_bind_element_buffer(glr_vectorset *vector) {
 			vector->vectors, GL_STATIC_DRAW);
 }
 
-// TODO make the texture sampler a seperate customizable thing.
+// TODO make the texture sampler a separate customizable thing.
 void glr_init_texture(glr_texture *texture) {
-	printf("glr_init_texture(...)\n");
     // OpenGL texturing works as follows.
     //
     // a. Many textures can be stored in memory, I just need to use glGenTextures
@@ -262,13 +262,6 @@ void glr_init_texture(glr_texture *texture) {
     // 	GLenum format,
     // 	GLenum type,
     // 	const GLvoid * data);
-    printf("internal_format %d\n width %d\n height %d\n format %d\ntype %d\n",
-        texture->internal_format,
-        texture->width,
-        texture->height,
-        texture->format,
-        texture->type
-    );
 
     // 4. fill the currently active GL_TEXTURE_2D (texture->id thanks to 3.)
     // with our actual pixels
@@ -294,7 +287,6 @@ void glr_init_texture(glr_texture *texture) {
 }
 
 void glr_init_vao(glr_textured_mesh *mesh) {
-	printf("glr_init_vao(...)\n");
     // for simplicity, all our VBO/attribute bindings are wrapped in a
     // Vertex Array object.
     // 1. Generate and bind a VAO.
@@ -371,7 +363,6 @@ void glr_destroy_vbos_on_trianglar_mesh(glr_textured_mesh* mesh) {
 }
 
 void glr_destroy_texture(glr_texture *texture) {
-    printf("glr_destroy_texture(...)\n");
     glDeleteTextures(1, &texture->id);
 }
 
@@ -387,13 +378,3 @@ void glr_math_float_vector4_0001(float* vector) {
     memset(vector, 0, sizeof(float) * 3);
     vector[3] = 1.0;
 }
-
-void glr_print_matrix(float* matrix) {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            printf("%f\t", matrix[i *4 + j]);
-        }
-        printf("\n");
-    }
-}
-

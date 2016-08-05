@@ -49,15 +49,16 @@ class CyRasterizerBase(object):
     Parameters
     ----------
 
-    width : int
+    width : `int`
         The width of the rasterize target
-
-    height: int
+    height : `int`
         The height of the rasterize target
+    verbose : `bool`, optional
+        If ``True``, print information about setting up the rendering buffer.
+        Error information is always printed.
 
     Notes
     -----
-
     For a given vertex v = (x, y, z, 1), it's position in image space
     v' = (s, t) is calculated from
 
@@ -94,10 +95,10 @@ class CyRasterizerBase(object):
     """
 
     def __init__(self, width=1024, height=768, model_matrix=None,
-                 view_matrix=None, projection_matrix=None):
+                 view_matrix=None, projection_matrix=None, verbose=False):
         # delay import so we only check for GL setup at first initialization
         from .glrasterizer import GLRasterizer
-        self._opengl = GLRasterizer(width, height)
+        self._opengl = GLRasterizer(width, height, verbose=int(verbose))
         if not self._opengl.successfully_initialized():
             raise RuntimeError("Failed to initialize CyRasterizer")
         if model_matrix is not None:

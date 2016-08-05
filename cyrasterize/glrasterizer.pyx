@@ -151,7 +151,7 @@ cdef class GLScene:
 
     cdef glr_glfw_context context
 
-    def __cinit__(self, int width, int height):
+    def __cinit__(self, int width, int height, int verbose):
         self.shaders = dict()
         self.width = width
         self.height = height
@@ -159,7 +159,7 @@ cdef class GLScene:
         self.context = glr_build_glfw_context_offscreen(width, height)
         # init our context
         cdef glr_STATUS status
-        status = glr_glfw_init(&self.context)
+        status = glr_glfw_init(&self.context, verbose)
         cdef bool success = status == GLR_SUCCESS
 
 
@@ -455,7 +455,7 @@ cdef class GLScene:
 
 cdef class GLRasterizer(GLScene):
 
-    def __init__(self, int width, int height):
+    def __init__(self, int width, int height, int verbose):
         default_vertex_shader = VertexShader(DEFAULT_VERTEX_SHADER_SRC)
         default_fragment_shader = FragmentShader(DEFAULT_FRAGMENT_SHADER_SRC)
 

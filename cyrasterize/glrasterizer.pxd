@@ -21,7 +21,7 @@ cdef extern from "./cpp/glrglfw.h":
 
     cdef glr_glfw_context glr_build_glfw_context_offscreen(int width,
                                                            int height)
-    cdef glr_STATUS glr_glfw_init(glr_glfw_context* context)
+    cdef glr_STATUS glr_glfw_init(glr_glfw_context* context, int verbose)
     cdef void glr_glfw_terminate(glr_glfw_context* context)
 
 

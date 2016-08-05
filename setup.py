@@ -28,7 +28,8 @@ ext_kwargs = {
     'language': 'c++'
 }
 
-package_data_globs = ['*.pyx', '*.pxd', 'cpp/*.h', 'shaders/*.vert', 'shaders/*.frag']
+package_data_globs = ['*.pyx', '*.pxd', 'cpp/*.h', 'shaders/*.vert',
+                      'shaders/*.frag']
 
 # unfortunately, linking requirements differ on OS X vs Linux vs Windows
 # On Windows we essentially just copy the DLLs into the path so that
@@ -58,10 +59,12 @@ if sys.platform.startswith('win'):
 elif sys.platform.startswith('linux'):
     ext_kwargs['libraries'] = ['m', 'GLEW', 'GL', 'GLU', 'glfw']
     ext_kwargs['include_dirs'] = [np.get_include()]
+    ext_kwargs['extra_compile_args'] = ['-Wno-unused-function']
 
 elif sys.platform == 'darwin':
     ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
     ext_kwargs['include_dirs'] = [np.get_include()]
+    ext_kwargs['extra_compile_args'] = ['-Wno-unused-function']
     # TODO why does it compile without these on OS X?!
     #c_ext.extra_compile_args += ['-framework OpenGL',
     #                             '-framework Cocoa', '-framework IOKit',

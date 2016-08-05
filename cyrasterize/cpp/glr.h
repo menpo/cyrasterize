@@ -207,9 +207,6 @@ void glr_math_float_matrix_eye(float *matrix);
  */
 void glr_math_float_vector4_0001(float *matrix);
 
-
-void glr_print_matrix(float* matrix);
-
 // set the clear colour to a new value
 // (takes four value float array)
 void glr_set_clear_color(float* clear_color_4_vec);
