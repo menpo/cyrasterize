@@ -442,7 +442,7 @@ cdef class GLScene:
     def get_height(self):
         return self.context.window_height
 
-    def __del__(self):
+    def __dealloc__(self):
         glr_glfw_terminate(&self.context)
 
     def successfully_initialized(self):
