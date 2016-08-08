@@ -359,6 +359,8 @@ cdef class GLScene:
         cdef GLFWwindow* window = <GLFWwindow*> self.context.window
 
         glfwSwapBuffers(<GLFWwindow *> window)
+        # We should poll for events after buffering but before rendering.
+        glfwPollEvents()
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
