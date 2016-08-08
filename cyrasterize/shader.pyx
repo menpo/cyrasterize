@@ -29,6 +29,7 @@ cdef class ShaderSource:
         cdef const GLchar* source = py_byte_source
 
         # create and compile
+        self._compiled = False
         uid = glCreateShader(self.shader_type)
         glShaderSource(uid, 1, <GLchar**> &source, NULL)
         glCompileShader(uid)
@@ -46,13 +47,14 @@ cdef class ShaderSource:
                 str(self), error))
 
         log.info('Compiled a {} ({}) shader'.format(str(self), self.shader_type))
+        self._compiled = True
 
     def __dealloc__(self):
         # if self.shader != -1:
         log.debug('TODO Maybe we have to deallocate the shader here?')
 
     cpdef bool is_compiled(self):
-        return self.uid != -1
+        return self._compiled
 
     cdef get_shader_log(self):
         cdef bytes py_msg

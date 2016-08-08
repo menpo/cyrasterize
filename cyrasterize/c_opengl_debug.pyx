@@ -1,4 +1,3 @@
-# distutils: language = c++
 import logging as log
 cimport c_opengl as cgl
 

@@ -1,5 +1,3 @@
-# distutils: language = c++
-
 from libc.stdint cimport uint8_t
 from libcpp cimport bool
 from c_opengl cimport *

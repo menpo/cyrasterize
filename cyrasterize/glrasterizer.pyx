@@ -1,5 +1,3 @@
-# distutils: language = c++
-
 from libcpp cimport bool
 cimport numpy as np
 import logging as log
