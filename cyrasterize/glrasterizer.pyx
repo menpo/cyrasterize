@@ -12,7 +12,8 @@ from .c_opengl_debug cimport *
 from .shader import VertexShader, FragmentShader
 
 
-SHADER_BASEPATH = os.path.join(os.path.dirname(sys.modules['cyrasterize'].__file__), 'shaders', 'blinnphong')
+SHADER_BASEPATH = os.path.join(os.path.dirname(
+    sys.modules['cyrasterize'].__file__), 'shaders', 'blinnphong')
 DEFAULT_VERTEX_SHADER_SRC = open(SHADER_BASEPATH + '.vert', 'rt').read()
 DEFAULT_FRAGMENT_SHADER_SRC = open(SHADER_BASEPATH + '.frag', 'rt').read()
 
@@ -26,26 +27,29 @@ cdef class GLUniform:
     valid_dtypes = (np.float32, np.int32)
 
     def __cinit__(self, str name, GLuint location, np.ndarray value):
-        r'''A uniform opengl variable
+        r"""A uniform opengl variable
+
         Parameters
         ----------
+        name : str
+            The variable name as a string
+        location: GLuint
+            The opengl specific identifier of the uniform
+        value : ndarray
+            The value has to have a dtype which is a subclass
+            of an int32 or a float32. This only accepts one of the following
+            shapes:
 
-        name : str, the variable name as a string
+                0,  : a single scalar
+                1,  : a vector array
+                2,2 : a 2x2 matrix array
+                3,3 : a 3x3 matrix array
+                4,4 : a 4x4 matrix array
 
-        location: GLuint, the opengl specific identifier of the uniform
-
-        value: ndarray, the value has to have a dtype which is a subclass
-        of an int32 or a float32. This only accepts one of the following shapes:
-
-            0,  : a single scalar
-            1,  : a vector array
-            2,2 : a 2x2 matrix array
-            3,3 : a 3x3 matrix array
-            4,4 : a 4x4 matrix array
-        '''
-
+        """
         if not any([value.dtype == x for x in self.valid_dtypes]):
-            raise ValueError('The value dtype must be either {}'.format(' or '.join(map(str, self.valid_dtypes))))
+            raise ValueError('The value dtype must be either {}'.format(
+                                 ' or '.join(map(str, self.valid_dtypes))))
 
         self.name = name
         self.location = location
@@ -56,7 +60,9 @@ cdef class GLUniform:
 
 
     def __str__(self):
-        return 'Name: {} Location: {} Type: {}'.format(self.name, self.location, self.value.dtype)
+        return 'Name: {} Location: {} Type: {}'.format(self.name,
+                                                       self.location,
+                                                       self.value.dtype)
 
     cpdef upload(self):
         dtype = self.value.dtype
@@ -68,7 +74,8 @@ cdef class GLUniform:
         matrix_funs[1] = glUniformMatrix3fv
         matrix_funs[2] = glUniformMatrix4fv
 
-        vector_funs = [glUniform1f, glUniform1f, glUniform2f, glUniform3f, glUniform4f]
+        vector_funs = [glUniform1f, glUniform1f, glUniform2f, glUniform3f,
+                       glUniform4f]
 
         if value.ndim <= 1:
             # value is a vector
@@ -76,10 +83,12 @@ cdef class GLUniform:
                   vector_funs[vector_len](*([self.location] + list(self.value)))
             else:
                 if dtype == np.float32:
-                    glUniform1fv(self.location, <GLint>vector_len, <GLfloat*> value.data)
+                    glUniform1fv(self.location, <GLint>vector_len,
+                                 <GLfloat*> value.data)
 
                 elif dtype == np.int32:
-                    glUniform1iv(self.location, <GLint>vector_len, <GLint*> value.data)
+                    glUniform1iv(self.location, <GLint>vector_len,
+                                 <GLint*> value.data)
 
                 else:
                     raise RuntimeError()
@@ -88,7 +97,8 @@ cdef class GLUniform:
             # value is a matrix
             for num, i in enumerate(range(3), start=2):
                 if num == value.shape[0] and num == value.shape[1]:
-                    matrix_funs[i](self.location, 1, GL_TRUE, <GLfloat *> value.data)
+                    matrix_funs[i](self.location, 1, GL_TRUE,
+                                   <GLfloat *> value.data)
                     return
 
             raise ValueError('Only supports 2x2, 3x3 and 4x4 float matrices')
@@ -97,7 +107,7 @@ cdef class GLUniform:
         return self.value
 
 def normalize_v3(arr):
-    ''' Normalize a numpy array of 3 component vectors shape=(n,3) '''
+    """ Normalize a numpy array of 3 component vectors shape=(n,3)"""
     lens = np.sqrt( arr[:,0]**2 + arr[:,1]**2 + arr[:,2]**2 )
     arr[:,0] /= lens
     arr[:,1] /= lens
@@ -106,23 +116,28 @@ def normalize_v3(arr):
 
 
 def vertex_normals(points, trilist):
-    # Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
-    cdef np.ndarray[float, ndim=2, mode="c"] norm = np.zeros( (points.shape[0], points.shape[1]), dtype=np.float32)
+    # Create a zeroed array with the same type and shape as our vertices
+    # i.e., per vertex normal
+    cdef np.ndarray[float, ndim=2, mode="c"] norm = np.zeros(
+        (points.shape[0], points.shape[1]), dtype=np.float32)
     tris = points[trilist]
 
-    # Calculate the normal for all the triangles, by taking the cross product of the vectors v1-v0, and v2-v0 in each triangle
-    n = np.cross( tris[::,1 ] - tris[::,0]  , tris[::,2 ] - tris[::,0] )
+    # Calculate the normal for all the triangles, by taking the cross product
+    # of the vectors v1-v0, and v2-v0 in each triangle
+    n = np.cross(tris[::,1 ] - tris[::,0]  , tris[::,2 ] - tris[::,0])
 
-    # n is now an array of normals per triangle. The length of each normal is dependent the vertices,
-    # we need to normalize these, so that our next step weights each normal equally.
-
+    # n is now an array of normals per triangle. The length of each normal is
+    # dependent the vertices, we need to normalize these, so that our next step
+    # weights each normal equally.
     normalize_v3(n)
 
-    # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
-    # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
-    # the triangles' normal. Multiple triangles would then contribute to every vertex, so we need to normalize again afterwards.
-    # The cool part, we can actually add the normals through an indexed view of our (zeroed) per vertex normal array
-
+    # now we have a normalized array of normals, one per triangle,
+    # i.e., per triangle normals.
+    # But instead of one per triangle (i.e., flat shading), we add to each
+    # vertex in that triangle, the triangles' normal. Multiple triangles would
+    # then contribute to every vertex, so we need to normalize again afterwards.
+    # The cool part, we can actually add the normals through an indexed view of
+    # our (zeroed) per vertex normal array
     norm[ trilist[:,0] ] += n
     norm[ trilist[:,1] ] += n
     norm[ trilist[:,2] ] += n
@@ -162,7 +177,6 @@ cdef class GLScene:
         status = glr_glfw_init(&self.context, verbose)
         cdef bool success = status == GLR_SUCCESS
 
-
         if not success:
             raise RuntimeError('glr_glfw_init failed with error {}'.format(status))
 
@@ -195,13 +209,13 @@ cdef class GLScene:
 
 
     def attach_shader(self, shader):
-        '''
+        """
         Attaches a shader to the engine.
 
         Properties:
 
         shader: ShaderSource
-        '''
+        """
         if not shader.is_compiled():
             raise ValueError('Shader not compiled!')
 
@@ -255,9 +269,11 @@ cdef class GLScene:
 
         glGenFramebuffers(1, &self.fbo)
 
-        glr_init_framebuffer(&self.fbo, &self.fb_rgb_target, GL_COLOR_ATTACHMENT0)
+        glr_init_framebuffer(&self.fbo, &self.fb_rgb_target,
+                             GL_COLOR_ATTACHMENT0)
 
-        glr_init_framebuffer(&self.fbo, &self.fb_f3v_target, GL_COLOR_ATTACHMENT1)
+        glr_init_framebuffer(&self.fbo, &self.fb_f3v_target,
+                             GL_COLOR_ATTACHMENT1)
 
         cdef GLenum buffers[2]
 
@@ -280,11 +296,9 @@ cdef class GLScene:
         # THIS BEING GL_DEPTH_COMPONENT means that the depth information at each
         # fragment will end up here. Note that we must manually set up the depth
         # buffer when using framebuffers.
+        cdef GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
 
-        cdef GLenum status;
-        status = glCheckFramebufferStatus(GL_FRAMEBUFFER)
-
-        if(status != GL_FRAMEBUFFER_COMPLETE):
+        if status != GL_FRAMEBUFFER_COMPLETE:
             log.error(self.get_program_log())
             glr_check_error()
             raise RuntimeError("Framebuffer error: %d 0x%04X" % (status, status))
@@ -298,17 +312,9 @@ cdef class GLScene:
         return result == GL_TRUE
 
     cdef void stop(self):
-        '''
-            Stop using the program
-        '''
         glUseProgram(0)
 
-
     cdef get_program_log(self):
-        '''
-            Return the program log.
-        '''
-
         cdef char msg[2048]
         cdef GLsizei length
         msg[0] = '\0'
@@ -331,8 +337,8 @@ cdef class GLScene:
         self.mesh.f3v_data.attribute_pointer = 2
         self.mesh.normals.attribute_pointer = 3
 
-        # assign the meshes texture to be on unit 1 and initialize the buffer for
-        # texture mesh
+        # assign the meshes texture to be on unit 1 and initialize the buffer
+        # for the texture mesh
         self.mesh.texture.unit = 1
 
         glr_init_vao(&self.mesh)
@@ -352,7 +358,7 @@ cdef class GLScene:
         glDrawElements(GL_TRIANGLES, self.mesh.trilist.n_vectors * 3,
                 GL_UNSIGNED_INT, <GLvoid*> 0)
 
-        # 3. DETATCH + SWAP BUFFERS
+        # 3. DETACH + SWAP BUFFERS
         # now we're done, can disable the vertex array (for safety)
         glBindVertexArray(0)
 
@@ -454,6 +460,7 @@ cdef class GLScene:
         self.set_model_matrix(orthogonal)
         self.set_view_matrix(orthogonal)
         self.set_projection_matrix(orthogonal)
+
 
 cdef class GLRasterizer(GLScene):
 
