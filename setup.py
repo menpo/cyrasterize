@@ -62,7 +62,7 @@ elif sys.platform.startswith('linux'):
     ext_kwargs['extra_compile_args'] = ['-Wno-unused-function']
 
 elif sys.platform == 'darwin':
-    ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw3']
+    ext_kwargs['libraries'] = ['m', 'GLEW', 'glfw']
     ext_kwargs['include_dirs'] = [np.get_include()]
     ext_kwargs['extra_compile_args'] = ['-Wno-unused-function']
     # TODO why does it compile without these on OS X?!
