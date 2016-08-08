@@ -96,8 +96,8 @@ glr_STATUS glr_glfw_init(glr_glfw_context* context, int verbose)
 
 void glr_glfw_terminate(glr_glfw_context* context)
 {
-    // clear up our GLFW state
-    glfwDestroyWindow(context->window);
+    // Ensure we have unset all callbacks and then terminate
+    glfwSetErrorCallback(NULL);
     glfwTerminate();
 }
 
