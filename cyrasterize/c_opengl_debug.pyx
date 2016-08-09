@@ -13,7 +13,7 @@ class bcolors:
     END = '\x1b[0m'
 
 def printWarn(string, color=bcolors.YELLOW):
-    log.debug(color + string + color)
+    log.debug(color + string + bcolors.END)
 
 cdef print_error():
     code = cgl.glGetError()
@@ -21,7 +21,7 @@ cdef print_error():
     cdef bytes pyString = c_char
 
     if code:
-        log.error(" *** Error *** [{}] {}".format(pyString, code) + bcolors.RED)
+        log.error(bcolors.RED + " *** Error *** [{}] {}".format(pyString, code) + bcolors.END)
 
 cdef void   glActiveTexture (GLenum texture) with gil:
     printWarn("GL glActiveTexture( texture = " + str(texture) + ", )")
